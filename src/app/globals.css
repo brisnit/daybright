@@ -1,0 +1,150 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #1c1838;
+  --color-ink-2: #3b3658;
+  --color-ink-3: #6b6684;
+  --color-paper: #fff9f0;
+  --color-cream: #fbf1e2;
+  --color-sand: #f3e7d3;
+  --color-line: #eadfcc;
+  --color-line-2: #ddcfb7;
+
+  --color-cobalt: #2446d8;
+  --color-cobalt-deep: #1a2f9e;
+  --color-cobalt-soft: #e4e9ff;
+  --color-coral: #ff6b57;
+  --color-coral-deep: #c9402c;
+  --color-coral-soft: #ffe4dd;
+  --color-butter: #ffd45c;
+  --color-butter-deep: #8a6400;
+  --color-butter-soft: #fff3c7;
+  --color-mint: #6fd8b1;
+  --color-mint-deep: #13795a;
+  --color-mint-soft: #dcf6ea;
+  --color-lilac: #bba6f6;
+  --color-lilac-deep: #5b3fb8;
+  --color-lilac-soft: #efe9ff;
+
+  --font-sans: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-grotesk: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-hand: var(--font-caveat), "Comic Sans MS", cursive;
+  --font-mono: var(--font-courier), ui-monospace, monospace;
+  --font-retro: var(--font-shrikhand), var(--font-fraunces), serif;
+
+  --radius-card: 1.25rem;
+  --shadow-soft: 0 1px 2px rgb(28 24 56 / 0.06), 0 8px 24px -12px rgb(28 24 56 / 0.18);
+  --shadow-lift: 0 2px 4px rgb(28 24 56 / 0.06), 0 22px 48px -20px rgb(28 24 56 / 0.35);
+  --shadow-press: 0 1px 0 rgb(28 24 56 / 0.9);
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-flicker: flicker 1.6s ease-in-out infinite;
+  --animate-twinkle: twinkle 2.4s ease-in-out infinite;
+  --animate-drift: drift 9s linear infinite;
+  --animate-shimmer: shimmer 1.8s linear infinite;
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) }
+    50% { transform: translateY(-8px) }
+  }
+  @keyframes flicker {
+    0%, 100% { transform: scale(1) rotate(-2deg); opacity: 1 }
+    50% { transform: scale(1.08, 0.94) rotate(2deg); opacity: .85 }
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: .25; transform: scale(.7) }
+    50% { opacity: 1; transform: scale(1.1) }
+  }
+  @keyframes drift {
+    0% { transform: translateY(-10%) rotate(0deg) }
+    100% { transform: translateY(110%) rotate(320deg) }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% 0 }
+    100% { background-position: 200% 0 }
+  }
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01", "cv11";
+}
+
+::selection {
+  background: var(--color-butter);
+  color: var(--color-ink);
+}
+
+/* Visible, on-brand focus for keyboard users */
+:focus-visible {
+  outline: 3px solid var(--color-cobalt);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.font-display {
+  font-variation-settings: "SOFT" 100, "WONK" 0;
+}
+.font-display-wonk {
+  font-family: var(--font-display);
+  font-variation-settings: "SOFT" 100, "WONK" 1;
+}
+
+/* Paper grain overlay used on hero and card surfaces */
+.grain {
+  position: relative;
+  isolation: isolate;
+}
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.35;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.11  0 0 0 0 0.09  0 0 0 0 0.2  0 0 0 0.09 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  border-radius: inherit;
+  z-index: 1;
+}
+
+.dotted-bg {
+  background-image: radial-gradient(rgb(28 24 56 / 0.08) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, rgb(28 24 56 / 0.05) 25%, rgb(28 24 56 / 0.1) 37%, rgb(28 24 56 / 0.05) 63%);
+  background-size: 400% 100%;
+  animation: var(--animate-shimmer);
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
+
+/* Card art animations only run when the card is "live" and motion is allowed */
+.card-live .anim-float { animation: var(--animate-float); }
+.card-live .anim-flicker { animation: var(--animate-flicker); transform-origin: 50% 100%; transform-box: fill-box; }
+.card-live .anim-twinkle { animation: var(--animate-twinkle); transform-origin: center; transform-box: fill-box; }
+.card-live .anim-drift { animation: var(--animate-drift); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
