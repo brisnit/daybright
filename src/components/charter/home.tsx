@@ -14,27 +14,31 @@ import { useCharter } from "./charter-provider";
 export const CHARTER_FAQ: FaqItem[] = [
   {
     q: "Is Daybright FINRA, SEC or RESPA compliant?",
-    a: "No software makes a firm compliant on its own, and no regulator has reviewed or approved Daybright. Our compliance features (Auto-BCC archiving, audit snapshots, principal-locked templates) are in development so your team can supervise and archive card communications under your own policies. Your firm stays responsible for its regulatory obligations.",
+    a: "No. No software makes a firm compliant on its own, and no regulator has reviewed or approved Daybright. The compliance features described here (Auto-BCC archiving, audit snapshots, principal-locked templates) are planned, not built. They're intended to help your team supervise and archive card communications under your own policies. Your firm stays responsible for its regulatory obligations.",
   },
   {
     q: "What works today, and what is still in development?",
-    a: "Card design, branded templates, message review, birthday scheduling and automation, CSV import with duplicate warnings and year-over-year design rotation all work in the product preview (marked Beta). CRM connections, SMS, archiving, household grouping and team seats are marked Planned. Charter members get early access as each one is released.",
+    a: "Daybright isn't in production use yet. Card design, branded templates, message review, birthday automation rules, CSV import with duplicate warnings and year-over-year design rotation can be tried in the product preview (marked Beta). The preview runs in your browser with sample data and doesn't send anything. CRM connections, SMS, archiving, household grouping and team seats are Planned, and no release dates are committed yet.",
   },
   {
     q: "Which CRMs will you connect to?",
-    a: "Wealthbox, Redtail, GoHighLevel, Follow Up Boss, Clio and AgencyZoom are in development, with HubSpot and Zapier webhooks on the roadmap. Until a connection ships, you can import clients by CSV, and our team will help with the import as part of charter setup.",
+    a: "Connections to Wealthbox, Redtail, GoHighLevel, Follow Up Boss, Clio and AgencyZoom are planned, with HubSpot and Zapier webhooks on the roadmap. None is available yet, and we have no partnership with these companies. Until a connection ships, clients can be imported by CSV, and our team will help with the import as part of charter setup.",
   },
   {
     q: "What does reserving a Founding Charter seat commit me to?",
-    a: `Nothing yet. Reserving holds one of ${CHARTER.seats} founding places. We'll follow up by email to confirm fit, scope and pricing in writing. No payment is collected on this site.`,
+    a: `Nothing. A reservation is a nonbinding expression of interest, not a purchase or a contract, and it doesn't guarantee a place. We review requests in the order received and will accept up to ${CHARTER.seats} founding firms. If we're a fit, we'll confirm pricing, scope and timing with you in writing before anything is agreed. No payment is collected on this site.`,
   },
   {
     q: "Are the signatures legally binding?",
     a: "No. The wet-ink look is a handwriting style for warmth. It is not an electronic signature and isn't used to authenticate anything.",
   },
   {
+    q: "Is pricing locked in, and what about refunds?",
+    a: "Prices shown are proposed. We haven't set a price-lock period, renewal terms or a refund policy yet, so none is promised here. They'll be stated in writing before you agree to anything, and nothing is charged before then.",
+  },
+  {
     q: "How will gifting be funded?",
-    a: "The gifting wallet is proposed, not active. The proposed terms are $0 platform markup on ACH-funded gifts, a 3.5% processing fee for card funding, and $0.05 per extra SMS/MMS. Merchant availability is still being confirmed.",
+    a: "Gifting is a concept and isn't built. The terms we're considering are $0 platform markup on ACH-funded gifts, a 3.5% processing fee for card funding, and $0.05 per extra SMS/MMS. These may change or not launch, and payments need legal review first. Merchant availability isn't confirmed.",
   },
 ];
 
@@ -49,7 +53,7 @@ export function CharterHome() {
         <CharterBand
           source="after-compliance"
           title={`Help shape Daybright as one of ${CHARTER.seats} founding firms.`}
-          body="Charter members lock in founding rates, get white-glove import and brand setup, and help choose which CRM connections and compliance features ship first."
+          body="Founding firms get proposed charter pricing, white-glove contact import and brand setup, and a direct say in which CRM connections and compliance features we build first."
         />
       </div>
 
@@ -81,8 +85,8 @@ export function CharterHome() {
           <div className="mt-10">
             <CharterBand
               source="after-pricing"
-              title="Lock in founding rates before the charter closes."
-              body={`Solo and Agency charters are limited to ${CHARTER.seats} firms in total. Reserve now and confirm later; nothing is charged today.`}
+              title={`Founding Charter places are limited to ${CHARTER.seats} firms.`}
+              body="Request a place now. We review each request and confirm details with you in writing. Reserving is nonbinding and nothing is charged."
             />
           </div>
         </div>
@@ -113,7 +117,7 @@ export function CharterHome() {
             Every milestone remembered. Every card on brand.
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-[17px] text-paper/75">
-            Join the first {CHARTER.seats} agencies and practices building client retention on Daybright.
+            Apply to be one of the first {CHARTER.seats} agencies and practices to shape Daybright.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <CharterButton source="final" variant="white" />
@@ -127,7 +131,7 @@ export function CharterHome() {
               Enterprise IMOs &amp; brokerages
             </button>
             <Link href="/app" className="font-semibold underline-offset-4 hover:text-paper hover:underline">
-              Explore the product preview
+              Explore the product preview (sample data)
             </Link>
           </div>
         </div>
@@ -155,7 +159,7 @@ export function PricingPageBody() {
         <CharterBand
           source="pricing-page-bottom"
           title="Not sure which tier fits?"
-          body="Reserve the closest one. You can switch tiers before anything is confirmed, and we'll help you choose on our follow-up call."
+          body="Request the closest one. You can switch tiers before anything is agreed, and we'll help you choose when we follow up."
         />
       </div>
       <StickyCharterBar />

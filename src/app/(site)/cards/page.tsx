@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { CardGallery } from "./gallery-client";
+import { PreviewBanner } from "@/components/site/preview-banner";
 
 export const metadata: Metadata = {
   title: "Birthday cards",
@@ -10,8 +11,11 @@ export const metadata: Metadata = {
 export default function CardsPage() {
   // Suspense: some catalog artwork reads the current year while rendering.
   return (
-    <Suspense fallback={<div className="mx-auto h-[80vh] max-w-7xl px-4" aria-busy="true" />}>
-      <CardGallery />
-    </Suspense>
+    <>
+      <PreviewBanner />
+      <Suspense fallback={<div className="mx-auto h-[80vh] max-w-7xl px-4" aria-busy="true" />}>
+        <CardGallery />
+      </Suspense>
+    </>
   );
 }

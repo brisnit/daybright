@@ -8,15 +8,15 @@ export function IntegrationsSection() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid gap-8 lg:grid-cols-[1fr_1.1fr] lg:items-end">
           <div>
-            <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8A6A2B]">Zero double data entry</p>
+            <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8A6A2B]">CRM connections</p>
             <h2 id="integrations-title" className="mt-3 font-display text-[34px] font-semibold leading-[1.05] tracking-tight text-[#16203A] text-balance sm:text-5xl">
               Built to Plug Into the Vertical CRM You Already Use
             </h2>
           </div>
           <p className="text-[17px] leading-relaxed text-ink-2">
             The goal: connect securely, bring in the client milestones you already track, and write a timestamped engagement note back
-            to each contact&rsquo;s timeline. Today, you can import clients by CSV. Native connections below are in development, and
-            Charter members help decide which ship first.
+            to each contact&rsquo;s timeline. None of the native connections below is available yet. CSV import can be tried in the
+            product preview, and Charter members help decide which connections we build first.
           </p>
         </div>
 

@@ -1,5 +1,5 @@
 import { after } from "next/server";
-import { normalizeWebsite, validateLead, type LeadSubmission } from "@/lib/reservations";
+import { consentText, normalizeWebsite, validateLead, type LeadSubmission } from "@/lib/reservations";
 import { hashIp, notifyLead, storeLead, type LeadRecord } from "@/lib/lead-store";
 
 /**
@@ -12,7 +12,6 @@ const MAX_BODY = 16_000;
 const MIN_FILL_MS = 2500; // humans can't complete the form faster than this
 const BURST_WINDOW_MS = 60_000;
 const BURST_MAX = 10;
-const CONSENT_TEXT = "Daybright may store these details and contact me by email about this request.";
 
 // Per-instance burst guard in front of the durable (database) limits.
 const hits = new Map<string, number[]>();
@@ -112,7 +111,7 @@ export async function POST(request: Request) {
     seats: (data.seats ?? "").trim(),
     message: (data.message ?? "").trim(),
     consent: true,
-    consentText: CONSENT_TEXT,
+    consentText: consentText(data.kind!),
     source: (data.source ?? "").slice(0, 100),
     idempotencyKey: String(data.idempotencyKey),
   };

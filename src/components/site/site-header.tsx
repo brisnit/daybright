@@ -69,7 +69,7 @@ export function SiteHeader() {
           </Link>
           <span className="hidden sm:block">
             <Button variant="ink" size="md" onClick={() => openReservation(null, "header")}>
-              Claim Charter Access
+              Request Charter Access
             </Button>
           </span>
           <button
@@ -112,7 +112,7 @@ export function SiteHeader() {
                     openReservation(null, "mobile-menu");
                   }}
                 >
-                  Claim Founding Charter Access
+                  Request Founding Charter Access
                 </Button>
                 <Button
                   variant="outline"

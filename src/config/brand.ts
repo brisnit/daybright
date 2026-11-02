@@ -6,7 +6,6 @@
  * NOTE: `PLANS` below are the product-preview plans used by /app and /onboarding. Public business pricing
  * comes from `TIERS` in src/config/charter.ts. See docs/PRICING_ALIGNMENT.md.
  */
-import { TIERS } from "./charter";
 
 export const BRAND = {
   name: "Daybright",
@@ -106,15 +105,12 @@ export const PLANS: Plan[] = [
   },
 ];
 
-/** Lowest standard monthly business price, from the Founding Charter tiers (src/config/charter.ts). */
-export const STARTING_PRICE = Math.min(...TIERS.filter((t) => t.standard?.cadence === "month").map((t) => t.standard!.amount));
-
 export const getPlan = (id: PlanId) => PLANS.find((p) => p.id === id) ?? PLANS[0];
 
 export const PRICING_COPY = {
   includes:
     "Your plan includes digital cards. Gift cards, physical gifts, and shipping are additional.",
-  provisional: "Provisional prototype pricing. Plans and limits may change before launch.",
+  provisional: "Illustrative pricing for this product preview only. It isn't Daybright's Founding Charter pricing, and nothing is charged.",
   aiAllowance: "Included in this demo; launch limits to be finalized.",
   aiNote:
     "AI card creation and message help are separate from your monthly card-send allowance.",

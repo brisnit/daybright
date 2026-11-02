@@ -159,9 +159,9 @@ export function GiftReveal({
               {digital !== "claimed" ? (
                 <motion.div key="claim" exit={{ opacity: 0 }} className="text-center">
                   <Button size="lg" className="w-full" onClick={claim} disabled={digital === "claiming"} icon={<Wallet className="size-4" />}>
-                    {digital === "claiming" ? "Adding to your wallet…" : "Claim your gift"}
+                    {digital === "claiming" ? "Preparing sample…" : "Reveal sample gift"}
                   </Button>
-                  <p className="mt-2 text-[13px] text-ink-3">{gift.delivery}. No account needed.</p>
+                  <p className="mt-2 text-[13px] text-ink-3">Demo gift. Nothing is purchased.</p>
                 </motion.div>
               ) : (
                 <motion.div key="claimed" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="rounded-3xl bg-mint-soft p-5 ring-1 ring-mint/50">
@@ -170,13 +170,13 @@ export function GiftReveal({
                       <Check className="size-5" />
                     </span>
                     <div>
-                      <p className="font-semibold text-mint-deep">Added to your wallet</p>
-                      <p className="text-[13px] text-ink-2">Use it at {merchant} whenever you like.</p>
+                      <p className="font-semibold text-mint-deep">Sample gift</p>
+                      <p className="text-[13px] text-ink-2">In the live product, this would be redeemable at {merchant}.</p>
                     </div>
                   </div>
                   <div className="mt-4 flex items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3 ring-1 ring-mint/40">
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-3">Gift code</p>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-3">Sample code</p>
                       <p className="font-mono text-lg font-bold tracking-wider text-ink">{code}</p>
                     </div>
                     <Button size="sm" variant="outline" onClick={copy} icon={copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}>
@@ -196,8 +196,8 @@ export function GiftReveal({
                       <MapPin className="size-5" />
                     </span>
                     <div>
-                      <p className="font-display text-xl font-semibold tracking-tight text-ink">Where should we send it?</p>
-                      <p className="text-[13px] text-ink-3">{gift.delivery} once we have your address.</p>
+                      <p className="font-display text-xl font-semibold tracking-tight text-ink">Where would it ship?</p>
+                      <p className="text-[13px] text-ink-3">In the live product: {gift.delivery.toLowerCase()} once the address is in.</p>
                     </div>
                   </div>
                   <div className="mt-4 grid gap-3">
@@ -211,7 +211,7 @@ export function GiftReveal({
                     </div>
                   </div>
                   <Button type="submit" size="lg" className="mt-5 w-full" disabled={physical === "saving"} icon={<Truck className="size-4" />}>
-                    {physical === "saving" ? "Saving…" : "Send it here"}
+                    {physical === "saving" ? "Noting…" : "Note address (demo)"}
                   </Button>
                   <SimulatedNote className="mt-3">Demo only. Nothing ships and the address isn&rsquo;t saved.</SimulatedNote>
                 </motion.form>
@@ -222,8 +222,8 @@ export function GiftReveal({
                       <Truck className="size-5" />
                     </span>
                     <div>
-                      <p className="font-semibold text-mint-deep">{submitted ? "Got it. It's on the way soon." : "It's on the way."}</p>
-                      <p className="text-[13px] text-ink-2">{gift.delivery}.</p>
+                      <p className="font-semibold text-mint-deep">Address noted (demo). Nothing ships.</p>
+                      <p className="text-[13px] text-ink-2">In the live product: {gift.delivery.toLowerCase()}.</p>
                     </div>
                   </div>
                   {submitted && (

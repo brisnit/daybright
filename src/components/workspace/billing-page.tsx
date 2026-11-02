@@ -45,7 +45,7 @@ export function BillingPage() {
 
   return (
     <AppPage>
-      <PageHeader eyebrow="Plan & billing" title="Plan & billing" description="Your subscription covers digital card sends. Gifts are billed separately, only when you approve them." />
+      <PageHeader eyebrow="Plan & billing" title="Plan & billing" description="In this preview, a plan covers digital card sends, and gifts would be billed separately when you approve them." />
       <SimulatedNote className="mt-4">Demo billing. No payment method is stored and nothing is charged.</SimulatedNote>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
@@ -54,7 +54,8 @@ export function BillingPage() {
           <div className="mt-2 flex flex-wrap items-end gap-x-3 gap-y-1">
             <h2 className="font-display text-4xl font-semibold tracking-tight">{plan.name}</h2>
             <p className="pb-1 text-ink-2">
-              <span className="font-grotesk text-2xl font-bold text-ink">{money(plan.monthlyPrice)}</span>/month
+              <span className="font-grotesk text-2xl font-bold text-ink">{money(plan.monthlyPrice)}</span>/month{" "}
+              <span className="text-[12px] font-semibold uppercase tracking-wide text-butter-deep">Illustrative</span>
             </p>
           </div>
           <p className="mt-2 max-w-md text-[14px] text-ink-2">{plan.blurb}</p>
@@ -90,7 +91,8 @@ export function BillingPage() {
       {/* Plan comparison */}
       <section className="mt-8">
         <Eyebrow>Compare plans</Eyebrow>
-        <h2 className="mb-4 font-display text-2xl font-semibold tracking-tight">Change your plan anytime</h2>
+        <h2 className="font-display text-2xl font-semibold tracking-tight">Try a different preview plan</h2>
+        <p className="mb-4 mt-1 text-[13px] text-ink-3">{PRICING_COPY.provisional}</p>
         <div className="grid gap-4 md:grid-cols-3">
           {PLANS.map((p) => {
             const current = p.id === plan.id;
@@ -219,7 +221,7 @@ export function BillingPage() {
           <div className="flex flex-col gap-3 text-ink-2">
             <p>
               {getPlan(plan.id).name} ({money(plan.monthlyPrice)}/month) → <strong className="text-ink">{target.name}</strong> ({money(target.monthlyPrice)}/month), up to{" "}
-              {target.monthlySends.toLocaleString()} card sends per month.
+              {target.monthlySends.toLocaleString()} card sends per month. Illustrative preview pricing; nothing is charged.
             </p>
             {target.monthlyPrice < plan.monthlyPrice && (
               <p className="text-[14px]">Features not in {target.name} stay visible to explore, with a note that they belong to a higher plan.</p>

@@ -86,7 +86,7 @@ export function CardStep({ d, set, step, total }: StepProps) {
           <div className="mt-4 rounded-2xl bg-paper p-4 ring-1 ring-line">
             <div className="flex items-center justify-between gap-2">
               <Eyebrow>What {example} will read</Eyebrow>
-              <AIDemoLabel>Real example</AIDemoLabel>
+              <AIDemoLabel>Example</AIDemoLabel>
             </div>
             <p className="mt-2 font-hand text-[24px] leading-[1.2] text-ink">{rendered}</p>
           </div>

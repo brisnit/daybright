@@ -20,8 +20,8 @@ type StepProps = { d: OnboardingDraft; set: (p: Partial<OnboardingDraft>) => voi
 export function PlanStep({ d, set, step, total }: StepProps) {
   return (
     <>
-      <StepHeader step={step} total={total} title="Pick a plan to try.">
-        Every plan includes the full card collection, scheduling and automation. You can switch any time in this demo.
+      <StepHeader step={step} total={total} title="Pick a preview plan to try.">
+        Prices here are illustrative, not Daybright&rsquo;s Founding Charter pricing. Every preview plan includes the card collection, scheduling and automation, and you can switch any time.
       </StepHeader>
       <div className="grid gap-4 md:grid-cols-3">
         {PLANS.map((p) => (

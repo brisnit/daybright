@@ -5,6 +5,7 @@ import { CARDS, CARD_MAP } from "@/data/cards";
 import { STUDIO_EXAMPLES } from "@/lib/cards";
 import type { CardDesign } from "@/lib/types";
 import { CardDetail } from "./card-detail-client";
+import { PreviewBanner } from "@/components/site/preview-banner";
 
 const ALL: CardDesign[] = [...CARDS, ...STUDIO_EXAMPLES];
 const find = (id: string) => CARD_MAP[id] ?? STUDIO_EXAMPLES.find((c) => c.id === id) ?? null;
@@ -29,8 +30,11 @@ async function Detail({ params }: { params: Promise<{ id: string }> }) {
 
 export default function CardPage({ params }: { params: Promise<{ id: string }> }) {
   return (
-    <Suspense fallback={<div className="mx-auto h-[80vh] max-w-7xl px-4" aria-busy="true" />}>
-      <Detail params={params} />
-    </Suspense>
+    <>
+      <PreviewBanner />
+      <Suspense fallback={<div className="mx-auto h-[80vh] max-w-7xl px-4" aria-busy="true" />}>
+        <Detail params={params} />
+      </Suspense>
+    </>
   );
 }

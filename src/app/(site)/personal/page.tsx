@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { HomePage } from "@/components/marketing/home-page";
+import { PreviewBanner } from "@/components/site/preview-banner";
 
 export const metadata: Metadata = {
   title: "Personal birthday cards",
@@ -8,5 +9,10 @@ export const metadata: Metadata = {
 
 /** The original consumer storefront, preserved for one-time personal sends. */
 export default function PersonalPage() {
-  return <HomePage />;
+  return (
+    <>
+      <PreviewBanner />
+      <HomePage />
+    </>
+  );
 }

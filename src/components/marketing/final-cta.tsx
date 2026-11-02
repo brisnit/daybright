@@ -1,7 +1,6 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
-import { PRICING_COPY, STARTING_PRICE, money } from "@/config/brand";
 import { CARD_MAP } from "@/data/cards";
 import { CardFront } from "@/components/cards/card-art";
 import { Envelope } from "@/components/cards/envelope";
@@ -16,7 +15,7 @@ export function FinalCTA({
   title = "Every customer birthday, remembered.",
   body = "Open a fully stocked demo workspace for a fictional real estate team. No sign-up, nothing is sent.",
   primary = { href: "/app", label: "Explore business demo" },
-  secondary = { href: "/pricing", label: "See plans" },
+  secondary = { href: "/pricing", label: "See Founding Charter pricing" },
 }: {
   title?: string;
   body?: string;
@@ -44,7 +43,7 @@ export function FinalCTA({
                   {secondary.label}
                 </ButtonLink>
               </div>
-              <p className="mt-5 text-[14px] text-white/70">Plans from {money(STARTING_PRICE)}/month. {PRICING_COPY.includes}</p>
+              <p className="mt-5 text-[14px] text-white/70">Firms: see Founding Charter pricing. Nothing is charged in the demo.</p>
             </div>
             <div className="mx-auto hidden w-full max-w-[300px] lg:block" aria-hidden>
               <div className="pt-[70%]">

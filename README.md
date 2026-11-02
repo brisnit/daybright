@@ -28,6 +28,8 @@ launch steps: `docs/PRODUCTION_SETUP.md`.
 
 Local development: `vercel env pull .env.local`, then `npm run dev`. Without `DATABASE_URL`, development falls back to
 `.data/reservations.jsonl`. Export leads with `npm run leads:export > leads.csv` (contains personal data; don't commit).
+Track follow-up and the 15-seat cap with `npm run leads:admin -- summary | list | set <reference> <status>`, and apply
+database migrations with `npm run db:migrate`. Launch steps: `docs/PRODUCTION_SETUP.md`.
 
 Analytics events (`cta_click`, `sample_demo_open`, `reservation_modal_open`, `reservation_submit_success`, …) are pushed to
 `window.dataLayer` and dispatched as a `daybright:analytics` DOM event (`src/lib/analytics.ts`). No vendor is installed.

@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { clsx } from "clsx";
-import { ArrowLeft, ArrowRight, Check, Loader2, Lock } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Loader2 } from "lucide-react";
 import type { CardDesign, GiftSelection, SendDraft } from "@/lib/types";
 import { useDemo } from "@/lib/store";
 import { getCard } from "@/lib/cards";
@@ -198,10 +198,11 @@ export function SendFlow() {
               {draft.gift ? ` + gift ${money(t.gift)}` : " · no gift"}
               {t.shipping ? ` + shipping ${money(t.shipping)}` : ""}
             </p>
+            <p className="truncate text-ink-3">Demo · no charge</p>
           </div>
           {step === "review" ? (
-            <Button size="lg" onClick={place} disabled={placing} className="shrink-0" icon={placing ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Lock className="size-4" aria-hidden />}>
-              {placing ? "Sending…" : draft.when === "now" ? "Send now" : "Schedule card"}
+            <Button size="lg" onClick={place} disabled={placing} className="shrink-0" icon={placing ? <Loader2 className="size-4 animate-spin" aria-hidden /> : undefined}>
+              {placing ? "Finishing…" : "Finish demo"}
             </Button>
           ) : (
             <Button size="lg" onClick={next} className="max-w-[60%] shrink-0" iconRight={<ArrowRight className="size-4" aria-hidden />}>

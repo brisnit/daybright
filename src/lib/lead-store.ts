@@ -3,13 +3,15 @@ import { createHmac } from "node:crypto";
 import { appendFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
+import { migrate } from "./lead-schema.mjs";
 
 /**
  * Lead storage for POST /api/reservations. See docs/LEAD_CAPTURE.md.
  *
  * System of record: Postgres (Neon via the Vercel Marketplace), using DATABASE_URL.
  * A lead counts as captured only after the INSERT commits; notifications run afterwards and never
- * decide success. Without DATABASE_URL: optional webhook, dev-only file store, else "not_configured".
+ * decide success. New leads always start with status 'new'; follow-up status is changed only with
+ * `npm run leads:admin`, never by the public form. Without DATABASE_URL: optional webhook, dev-only file store, else "not_configured".
  */
 
 export type LeadRecord = {
@@ -47,36 +49,14 @@ function db() {
   return sqlClient;
 }
 
-/** Idempotent schema setup, run once per server instance (also covers fresh preview branches). */
+/** Applies pending migrations once per server instance (also covers fresh preview branches). */
 function ensureSchema(sql: NeonQueryFunction<false, false>) {
-  schemaReady ??= (async () => {
-    await sql`
-      create table if not exists reservations (
-        id              uuid primary key,
-        received_at     timestamptz not null default now(),
-        kind            text not null check (kind in ('reservation','inquiry')),
-        tier            text not null,
-        full_name       text not null,
-        title           text not null default '',
-        firm            text not null,
-        website         text not null default '',
-        email           text not null,
-        crm             text not null,
-        seats           text not null default '',
-        message         text not null default '',
-        consent         boolean not null,
-        consent_text    text not null,
-        source          text not null default '',
-        idempotency_key text not null unique,
-        ip_hash         text not null default '',
-        status          text not null default 'new'
-      )`;
-    await sql`create index if not exists reservations_ip_recent on reservations (ip_hash, received_at desc)`;
-    await sql`create index if not exists reservations_email_recent on reservations (email, received_at desc)`;
-  })().catch((err) => {
-    schemaReady = null; // allow a retry on the next request
-    throw err;
-  });
+  schemaReady ??= migrate(sql)
+    .then(() => undefined)
+    .catch((err) => {
+      schemaReady = null; // allow a retry on the next request
+      throw err;
+    });
   return schemaReady;
 }
 

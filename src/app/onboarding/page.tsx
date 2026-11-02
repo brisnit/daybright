@@ -4,7 +4,7 @@ import { OnboardingFlow } from "@/components/onboarding/onboarding-flow";
 
 export const metadata: Metadata = {
   title: "Set up your workspace",
-  description: "Choose a plan, add your brand and voice, and set birthday cards to send themselves.",
+  description: "Try the Daybright product preview: add your brand and voice and set up sample birthday automations. Nothing is sent.",
 };
 
 export default function OnboardingPage() {

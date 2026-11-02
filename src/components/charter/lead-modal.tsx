@@ -7,9 +7,9 @@ import { AlertCircle, Check, CheckCircle2, Copy, Loader2, Mail } from "lucide-re
 import { Modal } from "@/components/ui/overlay";
 import { Button } from "@/components/ui/button";
 import { inputClass } from "@/components/ui/field";
-import { CHARTER, CRM_OPTIONS, SALES_EMAIL, SALES_EMAIL_VERIFIED, getTier, tierSavings, type TierId } from "@/config/charter";
+import { CHARTER, CRM_OPTIONS, SALES_EMAIL, SALES_EMAIL_VERIFIED, getTier, type TierId } from "@/config/charter";
 import { Turnstile, TURNSTILE_ENABLED } from "./turnstile";
-import { emailFallbackHref, emailFallbackText, validateLead, type FieldErrors, type LeadKind, type LeadSubmission } from "@/lib/reservations";
+import { consentText, emailFallbackHref, emailFallbackText, validateLead, type FieldErrors, type LeadKind, type LeadSubmission } from "@/lib/reservations";
 import { track } from "@/lib/analytics";
 
 export type LeadRequest = { kind: LeadKind; tier: TierId | null; source: string; key: string };
@@ -21,7 +21,7 @@ const INQUIRY_TIERS: TierId[] = ["sponsor", "enterprise"];
 
 function tierLabel(id: TierId) {
   const t = getTier(id);
-  if (t.charter && (id === "solo" || id === "agency")) return `${t.id === "agency" ? "Agency" : "Solo"} Founding Charter — $${t.charter.amount}/year`;
+  if (t.charter && (id === "solo" || id === "agency")) return `${t.id === "agency" ? "Agency" : "Solo"} Founding Charter`;
   return t.name;
 }
 
@@ -87,6 +87,7 @@ function LeadForm({ request, onClose }: { request: LeadRequest; onClose: () => v
   const [status, setStatus] = useState<Status>({ state: "idle" });
   const [restored, setRestored] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | undefined>();
+  const [turnstileReset, setTurnstileReset] = useState(0);
   const openedAt = useRef(0);
 
   // Start the bot time-trap clock, and restore an unsent request from a previous failed attempt.
@@ -124,6 +125,10 @@ function LeadForm({ request, onClose }: { request: LeadRequest; onClose: () => v
       });
       return;
     }
+    if (TURNSTILE_ENABLED && !turnstileToken) {
+      setStatus({ state: "error", reason: ERROR_COPY.verification_failed });
+      return;
+    }
     setStatus({ state: "submitting" });
     try {
       const res = await fetch("/api/reservations", {
@@ -138,6 +143,7 @@ function LeadForm({ request, onClose }: { request: LeadRequest; onClose: () => v
         track(isInquiry ? "inquiry_submit_success" : "reservation_submit_success", { tier: data.tier, crm: data.crm, source: request.source });
         return;
       }
+      setTurnstileReset((n) => n + 1); // the token was spent; get a fresh one for the retry
       if (res.status === 422 && body.fields) {
         setServerErrors(body.fields);
         setStatus({ state: "idle" });
@@ -147,6 +153,7 @@ function LeadForm({ request, onClose }: { request: LeadRequest; onClose: () => v
       setStatus({ state: "error", reason: ERROR_COPY[body.error as string] ?? "We couldn't save your request just now, so nothing was saved." });
       track("reservation_submit_error", { code: body.error ?? res.status, tier: data.tier });
     } catch {
+      setTurnstileReset((n) => n + 1);
       writePending(data);
       setStatus({ state: "error", reason: "We couldn't reach our server, so nothing was saved. Check your connection and try again." });
       track("reservation_submit_error", { code: "network", tier: data.tier });
@@ -172,10 +179,12 @@ function LeadForm({ request, onClose }: { request: LeadRequest; onClose: () => v
         <p className="mx-auto mt-3 max-w-md text-[15px] leading-relaxed text-ink-2">
           {isInquiry
             ? `Thanks, ${data.fullName?.split(" ")[0]}. We'll reply to ${data.email} to find a time that works.`
-            : `Thanks, ${data.fullName?.split(" ")[0]}. We've recorded your ${tierLabel(data.tier as TierId).replace(" — ", " (")}) reservation request and will reply to ${data.email} to confirm your seat.`}
+            : `Thanks, ${data.fullName?.split(" ")[0]}. We've recorded your ${tierLabel(data.tier as TierId)} reservation request. We review requests in the order received and will reply to ${data.email}.`}
         </p>
         <p className="mx-auto mt-3 max-w-md text-[13px] text-ink-3">
-          No payment has been taken. {isInquiry ? "" : "Charter pricing is confirmed only when we follow up with an agreement."}
+          {isInquiry
+            ? "No payment has been taken, and nothing is booked automatically."
+            : "This doesn't guarantee a seat or commit you to anything. No payment has been taken; pricing and terms are agreed only in writing."}
         </p>
         <p className="mt-4 font-mono text-[12px] text-ink-3">Reference {status.id.slice(0, 8).toUpperCase()}</p>
         <Button variant="ink" className="mt-6" onClick={onClose}>
@@ -186,7 +195,6 @@ function LeadForm({ request, onClose }: { request: LeadRequest; onClose: () => v
   }
 
   const tier = getTier(data.tier as TierId);
-  const savings = tierSavings(tier);
 
   return (
     <form ref={formRef} onSubmit={submit} noValidate aria-labelledby={`${uid}-title`}>
@@ -195,12 +203,12 @@ function LeadForm({ request, onClose }: { request: LeadRequest; onClose: () => v
           {isInquiry ? "Talk to our team" : `${CHARTER.programName} · Limited to ${CHARTER.seats} founding firms`}
         </p>
         <h2 id={`${uid}-title`} className="mt-1 pr-10 font-display text-[26px] font-semibold leading-tight tracking-tight sm:text-3xl">
-          {isInquiry ? (data.tier === "sponsor" ? "Apply for a Sponsor account" : "Schedule an Enterprise demo") : "Reserve Your Founding Charter Access"}
+          {isInquiry ? (data.tier === "sponsor" ? "Apply for a Sponsor account" : "Request an Enterprise demo") : "Request a Founding Charter Seat"}
         </h2>
         <p className="mt-2 text-[14px] text-ink-2">
           {isInquiry
             ? "Tell us about your team. We'll reply by email to set up a conversation."
-            : "Reserving holds your place in line. No payment is collected now."}
+            : CHARTER.nonbinding}
         </p>
       </div>
 
@@ -210,7 +218,6 @@ function LeadForm({ request, onClose }: { request: LeadRequest; onClose: () => v
           <div className="mt-2 grid gap-2 sm:grid-cols-2" role="radiogroup" aria-invalid={!!show("tier") || undefined}>
             {tierOptions.map((id) => {
               const t = getTier(id);
-              const s = tierSavings(t);
               const checked = data.tier === id;
               return (
                 <label
@@ -239,7 +246,7 @@ function LeadForm({ request, onClose }: { request: LeadRequest; onClose: () => v
                   </span>
                   <span className="mt-1 text-[12.5px] text-ink-3">
                     {t.audience}
-                    {s && !isInquiry ? ` · Save ${s.pct}% vs. standard` : ""}
+                    {!isInquiry && t.charter ? ` · $${t.charter.amount}/${t.charter.cadence}, proposed` : ""}
                   </span>
                 </label>
               );
@@ -331,10 +338,7 @@ function LeadForm({ request, onClose }: { request: LeadRequest; onClose: () => v
               className="mt-0.5 size-4 shrink-0 rounded accent-ink"
             />
             <span>
-              I agree that {""}
-              <span className="font-semibold text-ink">Daybright</span> may store these details and contact me by email about
-              this {isInquiry ? "request" : "reservation"}. We use them only to respond and won&rsquo;t sell them. Please don&rsquo;t include client
-              information. See our{" "}
+              {consentText(request.kind)} See our{" "}
               <a href="/privacy" target="_blank" rel="noopener" className="font-semibold text-cobalt underline-offset-2 hover:underline">
                 Privacy Policy
               </a>
@@ -347,7 +351,7 @@ function LeadForm({ request, onClose }: { request: LeadRequest; onClose: () => v
 
       {TURNSTILE_ENABLED && (
         <div className="px-6 pb-4 sm:px-8">
-          <Turnstile onToken={setTurnstileToken} />
+          <Turnstile onToken={setTurnstileToken} resetKey={turnstileReset} />
         </div>
       )}
 
@@ -387,11 +391,15 @@ function LeadForm({ request, onClose }: { request: LeadRequest; onClose: () => v
 
       <div className="flex flex-col-reverse gap-3 border-t border-line px-6 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-8">
         <p className="text-[12px] text-ink-3">
-          {isInquiry ? "We'll reply by email; there's no automatic booking." : savings ? `${tier.name}: $${tier.charter!.amount}/year prepaid when confirmed. Nothing is charged today.` : ""}
+          {isInquiry
+            ? "We'll reply by email; there's no automatic booking."
+            : tier.charter
+              ? `${tier.name}: $${tier.charter.amount}/${tier.charter.cadence} proposed. Nonbinding; nothing is charged.`
+              : ""}
         </p>
         <Button type="submit" variant="ink" size="lg" disabled={status.state === "submitting"} aria-busy={status.state === "submitting"}>
           {status.state === "submitting" && <Loader2 className="size-4 animate-spin" aria-hidden />}
-          {status.state === "submitting" ? "Sending…" : status.state === "error" ? "Try again" : isInquiry ? "Send request" : "Reserve my seat"}
+          {status.state === "submitting" ? "Sending…" : status.state === "error" ? "Try again" : isInquiry ? "Send request" : "Request my seat"}
         </Button>
       </div>
     </form>
@@ -401,13 +409,16 @@ function LeadForm({ request, onClose }: { request: LeadRequest; onClose: () => v
 /** Manual fallback shown only after a failed submission. Nothing is sent unless the visitor sends the email themselves. */
 function EmailFallback({ href, text, noun }: { href: string; text: { subject: string; body: string }; noun: string }) {
   const [copied, setCopied] = useState(false);
+  // When the browser blocks clipboard access, show the text so it can be copied by hand.
+  const [manual, setManual] = useState(false);
+  const details = `To: ${SALES_EMAIL}\nSubject: ${text.subject}\n\n${text.body}`;
   async function copy() {
+    track("reservation_fallback_copy");
     try {
-      await navigator.clipboard.writeText(`To: ${SALES_EMAIL}\nSubject: ${text.subject}\n\n${text.body}`);
+      await navigator.clipboard.writeText(details);
       setCopied(true);
-      track("reservation_fallback_copy");
     } catch {
-      setCopied(false);
+      setManual(true);
     }
   }
   return (
@@ -429,6 +440,18 @@ function EmailFallback({ href, text, noun }: { href: string; text: { subject: st
           {copied ? "Details copied" : "Copy details"}
         </button>
       </div>
+      {manual && (
+        <label className="mt-3 block">
+          <span className="text-[13px] text-ink-2">Your browser blocked copying. Select this text and copy it into an email:</span>
+          <textarea
+            readOnly
+            value={details}
+            rows={6}
+            onFocus={(e) => e.currentTarget.select()}
+            className="mt-1.5 w-full resize-y rounded-xl bg-white p-3 font-mono text-[12px] text-ink ring-1 ring-line"
+          />
+        </label>
+      )}
       <span className="sr-only" aria-live="polite">
         {copied ? `Your details were copied. Paste them into an email to ${SALES_EMAIL}.` : ""}
       </span>

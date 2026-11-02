@@ -4,7 +4,7 @@ import { RecipientExperience } from "@/components/recipient/recipient-experience
 
 export const metadata: Metadata = {
   title: "A birthday card for you",
-  description: "Someone sent you a birthday card. Tap to open it.",
+  description: "A sample Daybright birthday card. Tap to open it.",
   robots: { index: false },
 };
 

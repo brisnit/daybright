@@ -4,7 +4,8 @@
  *
  * Every capability carries an explicit availability status. Flip a status only after the
  * capability is verified in production. See docs/CLAIMS_REVIEW.md for the review log.
- * Prices here are supplied business requirements for display only; nothing here activates billing.
+ * Prices here are proposed and for display only; nothing here activates billing. A reservation is a nonbinding
+ * expression of interest, not a purchase, and does not guarantee a seat.
  */
 
 export type Availability = "live" | "beta" | "planned" | "roadmap" | "concept" | "service" | "proposed";
@@ -13,12 +14,12 @@ export const AVAILABILITY: Record<Availability, { label: string; description: st
   live: { label: "Live", description: "Generally available and verified in production." },
   beta: {
     label: "Beta",
-    description: "Works in the Daybright product preview today; being hardened with Charter members before general release.",
+    description: "Can be tried in the browser-based product preview with sample data. Not yet in production use.",
   },
-  planned: { label: "Planned", description: "Committed for the Charter program, but not available yet." },
+  planned: { label: "Planned", description: "In development and not available yet. No release date is committed." },
   roadmap: { label: "Roadmap", description: "Intended for a later release. Timing is not committed." },
   concept: { label: "Concept", description: "Proposed only. Requires legal and compliance review before any commitment." },
-  service: { label: "Included service", description: "Delivered by the Daybright team rather than by software." },
+  service: { label: "Included service", description: "Delivered by the Daybright team rather than by software. Scope is confirmed in writing." },
   proposed: { label: "Proposed terms", description: "Proposed commercial terms, subject to change before launch." },
 };
 
@@ -32,11 +33,17 @@ export const SALES_EMAIL = "hello@daybright.store";
 export const SALES_EMAIL_VERIFIED = true;
 
 export const CHARTER = {
-  /** Founding Charter seat limit shown across the site. Change here only. */
+  /**
+   * Founding Charter cap: the most reservations that can be accepted (status 'accepted' in the database).
+   * Shown across the site and enforced by `npm run leads:admin`. Change here only.
+   */
   seats: 15,
   programName: "Founding Charter",
   /** Supplied claim: "White-Glove CRM Setup Included". Adapted until CRM connections exist. */
   setupMicrocopy: "White-glove contact import & brand setup included",
+  /** Shown wherever someone can reserve. Keep in sync with the FAQ and the privacy policy. */
+  nonbinding:
+    "A reservation is a nonbinding expression of interest, not a purchase. It doesn't guarantee a seat: we review requests in the order received and confirm any agreement in writing. Nothing is charged.",
 } as const;
 
 export type TierId = "solo" | "agency" | "sponsor" | "enterprise";
@@ -64,10 +71,12 @@ export type Tier = {
   name: string;
   audience: string;
   badge?: string;
-  /** Standard (post-charter) list price. null = custom. */
-  standard: Price | null;
-  /** Founding Charter / Charter Partner price. null = not offered. */
-  charter: (Price & { label: string; prepaid?: boolean }) | null;
+  /**
+   * Proposed Founding Charter / Charter Partner price. null = custom quote.
+   * No standard or post-charter price is published: comparison prices and savings claims are removed until
+   * list prices are set and actually charged.
+   */
+  charter: (Price & { label: string }) | null;
   /** Shown only when approved. */
   indicativePerSeat?: { min: number; max: number; approved: boolean };
   features: Feature[];
@@ -79,8 +88,7 @@ export const TIERS: Tier[] = [
     id: "solo",
     name: "Solo Practitioner",
     audience: "Independent agents & advisors",
-    standard: { amount: 39, cadence: "month" },
-    charter: { amount: 199, cadence: "year", prepaid: true, label: "Founding Charter" },
+    charter: { amount: 199, cadence: "year", label: "Founding Charter" },
     features: [
       { label: `Up to ${n(QUOTAS.solo.contacts)} active contacts`, status: "beta", quota: true },
       { label: `${QUOTAS.solo.users} user profile and signature`, status: "beta", quota: true },
@@ -89,7 +97,7 @@ export const TIERS: Tier[] = [
       { label: "Voice-to-note AI mobile app (PWA)", status: "planned" },
       { label: "Auto-BCC compliance archiving", status: "planned" },
     ],
-    cta: { label: "Lock In Solo Charter ($199/yr)", action: "reserve" },
+    cta: { label: "Request a Solo Charter Seat", action: "reserve" },
   },
   {
     id: "agency",
@@ -97,8 +105,7 @@ export const TIERS: Tier[] = [
     audience: "Teams & branches",
     // Supplied as "Most Popular". Adapted: there is no customer data to support a popularity claim yet.
     badge: "Best for teams",
-    standard: { amount: 149, cadence: "month" },
-    charter: { amount: 599, cadence: "year", prepaid: true, label: "Founding Charter" },
+    charter: { amount: 599, cadence: "year", label: "Founding Charter" },
     features: [
       { label: `Up to ${n(QUOTAS.agency.contacts)} active contacts`, status: "beta", quota: true },
       { label: `Up to ${QUOTAS.agency.seats} team seats with individual signatures`, status: "planned", quota: true },
@@ -108,13 +115,12 @@ export const TIERS: Tier[] = [
       { label: "Multi-year smart tracks (no repeated designs)", status: "beta" },
       { label: "White-glove contact and brand setup", status: "service" },
     ],
-    cta: { label: "Claim Agency Charter ($599/yr)", action: "reserve" },
+    cta: { label: "Request an Agency Charter Seat", action: "reserve" },
   },
   {
     id: "sponsor",
     name: "Co-Marketing Sponsor",
     audience: "Loan officers, title reps, wholesalers",
-    standard: { amount: 499, cadence: "month" },
     charter: { amount: 349, cadence: "month", label: "Charter Partner" },
     features: [
       { label: `Sponsor up to ${QUOTAS.sponsor.partnerAccounts} referral partner accounts`, status: "planned", quota: true },
@@ -128,7 +134,6 @@ export const TIERS: Tier[] = [
     id: "enterprise",
     name: "Enterprise IMO / Brokerage",
     audience: "100 to 5,000+ seats",
-    standard: null,
     charter: null,
     indicativePerSeat: { min: 15, max: 22, approved: false },
     features: [
@@ -138,21 +143,11 @@ export const TIERS: Tier[] = [
       { label: "Dedicated account manager", status: "service" },
       { label: "Custom API", status: "roadmap" },
     ],
-    cta: { label: "Schedule Enterprise Demo", action: "inquire" },
+    cta: { label: "Request an Enterprise Demo", action: "inquire" },
   },
 ];
 
 export const getTier = (id: TierId) => TIERS.find((t) => t.id === id)!;
-
-/** Annualized standard and charter cost, and the rounded savings percentage. */
-export function tierSavings(t: Tier) {
-  if (!t.standard || !t.charter) return null;
-  const perYear = (p: Price) => (p.cadence === "month" ? p.amount * 12 : p.amount);
-  const standardYear = perYear(t.standard);
-  const charterYear = perYear(t.charter);
-  const pct = Math.round((1 - charterYear / standardYear) * 100);
-  return { standardYear, charterYear, pct, saved: standardYear - charterYear };
-}
 
 /** Hero capability pills. Supplied wording is adapted where the capability is not yet live. */
 export const CAPABILITY_PILLS: { title: string; detail: string; status: Availability }[] = [
@@ -196,7 +191,7 @@ export const INTEGRATIONS: Integration[] = [
 
 export const CRM_OPTIONS = ["Wealthbox", "Redtail", "GoHighLevel", "Follow Up Boss", "Clio", "AgencyZoom", "HubSpot", "Other / CSV"] as const;
 
-/** Proposed commercial terms for gifting and messaging. Not active; no funds are held or processed. */
+/** Proposed commercial terms for gifting and messaging. Concept only: not built, no funds are held or processed. */
 export const GIFTING_TERMS: { label: string; detail: string }[] = [
   { label: "Digital gift cards, $5–$100", detail: "From supported merchants. Merchant availability is still being confirmed." },
   { label: "$0 platform markup on ACH-funded gifting", detail: "Gift value passes through at face value." },

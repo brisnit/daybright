@@ -13,8 +13,7 @@ export type AnalyticsEvent =
   | "reservation_fallback_email"
   | "reservation_fallback_copy"
   | "inquiry_modal_open"
-  | "inquiry_submit_success"
-  | "pricing_view_toggle";
+  | "inquiry_submit_success";
 
 type Props = Record<string, string | number | boolean | undefined>;
 

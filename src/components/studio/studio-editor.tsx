@@ -499,17 +499,17 @@ export function StudioEditor({
             <Button variant="ghost" onClick={() => setBizInfoOpen(false)}>
               Back to my card
             </Button>
-            <ButtonLink href="/business" iconRight={<ArrowRight className="size-4" aria-hidden />}>
-              See {BRAND.name} for business
+            <ButtonLink href="/" iconRight={<ArrowRight className="size-4" aria-hidden />}>
+              {BRAND.name} for firms
             </ButtonLink>
           </div>
         }
       >
         <p className="text-[14.5px] text-ink-2">
-          With a business plan, a design like this can become the card every customer gets on their birthday, sent automatically in your
+          In the live product, a design like this could become the card every client gets on their birthday, sent automatically in your
           brand with each person’s name. Original artwork is approved once by your team before it’s used in automated sends.
         </p>
-        <p className="mt-3 text-[14.5px] text-ink-2">Sending to one person? Use Send now. No subscription needed.</p>
+        <p className="mt-3 text-[14.5px] text-ink-2">Sending to one person? Try the demo send. Nothing is actually sent.</p>
       </Modal>
     </div>
   );

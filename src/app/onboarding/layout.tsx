@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand/logo";
+import { PreviewBanner } from "@/components/site/preview-banner";
 
 /** Focused onboarding layout: logo plus two ways out, nothing else to distract. */
 export default function OnboardingLayout({ children }: { children: React.ReactNode }) {
@@ -19,6 +20,7 @@ export default function OnboardingLayout({ children }: { children: React.ReactNo
           </nav>
         </div>
       </header>
+      <PreviewBanner variant="app" />
       <main id="main" className="flex-1">
         {children}
       </main>

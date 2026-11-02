@@ -28,6 +28,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import { initials } from "@/components/cards/card-art";
 import { HydrationGate } from "@/components/hydration-gate";
+import { PreviewBanner } from "@/components/site/preview-banner";
 
 export const APP_NAV = [
   { href: "/app", label: "Overview", icon: LayoutDashboard },
@@ -215,6 +216,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           )}
         </AnimatePresence>
         <main id="main" className="min-w-0 flex-1">
+          <PreviewBanner variant="app" />
           <HydrationGate>{children}</HydrationGate>
         </main>
       </div>

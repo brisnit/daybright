@@ -10,9 +10,9 @@ if (!url) {
 }
 const sql = neon(url);
 const rows = await sql`
-  select received_at, kind, tier, full_name, title, firm, website, email, crm, seats, message, source, status, id
+  select received_at, kind, tier, full_name, title, firm, website, email, crm, seats, message, source, status, status_note, status_updated_at, id
   from reservations order by received_at desc`;
-const cols = ["received_at", "kind", "tier", "full_name", "title", "firm", "website", "email", "crm", "seats", "message", "source", "status", "id"];
+const cols = ["received_at", "kind", "tier", "full_name", "title", "firm", "website", "email", "crm", "seats", "message", "source", "status", "status_note", "status_updated_at", "id"];
 const esc = (v) => {
   const s = v == null ? "" : v instanceof Date ? v.toISOString() : String(v);
   // Neutralize spreadsheet formula injection and quote every cell.

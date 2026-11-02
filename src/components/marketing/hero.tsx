@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Search, Sparkles } from "lucide-react";
-import { CONSUMER, PRICING_COPY, STARTING_PRICE, money } from "@/config/brand";
+import { CONSUMER, PRICING_COPY, money } from "@/config/brand";
 import { CARD_MAP } from "@/data/cards";
 import { GIFT_MAP } from "@/data/gifts";
 import { CardFront } from "@/components/cards/card-art";
@@ -24,7 +24,7 @@ export function HomeHero() {
         <div className="relative z-10 max-w-2xl">
           <p className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-[13px] font-semibold text-ink-2 shadow-soft ring-1 ring-line">
             <Sparkles className="size-3.5 text-lilac-deep" aria-hidden />
-            Original cards, made with AI. Sent on the day.
+            Original cards, designed in minutes. Try the prototype.
           </p>
           <h1 className="mt-6 font-display text-[3.25rem] font-semibold leading-[0.95] tracking-tight text-ink sm:text-7xl lg:text-[5.4rem]">
             Their birthday.
@@ -42,19 +42,19 @@ export function HomeHero() {
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <ButtonLink href="/studio" size="lg" icon={<Sparkles className="size-4" aria-hidden />}>
-              Create a card with AI
+              Try the demo Card Studio
             </ButtonLink>
-            <ButtonLink href="/business" size="lg" variant="outline" iconRight={<ArrowRight className="size-4" aria-hidden />}>
-              Explore business plans
+            <ButtonLink href="/" size="lg" variant="outline" iconRight={<ArrowRight className="size-4" aria-hidden />}>
+              Daybright for firms
             </ButtonLink>
           </div>
           <HeroSearch />
           <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 text-[14px] text-ink-2">
             <Link href="/pricing" className="group inline-flex items-center gap-2 font-semibold text-ink">
               <span className="rounded-full bg-mint-soft px-2.5 py-0.5 font-grotesk text-[13px] font-bold text-mint-deep">
-                Business plans from {money(STARTING_PRICE)}/month
+                Founding Charter pricing for firms
               </span>
-              <span className="underline decoration-line-2 underline-offset-4 group-hover:decoration-ink">Digital cards included</span>
+              <span className="underline decoration-line-2 underline-offset-4 group-hover:decoration-ink">See Founding Charter pricing</span>
             </Link>
             <span className="text-ink-3">Gifts are optional extras · One-time cards from {money(CONSUMER.digitalCardPrice)}</span>
           </div>

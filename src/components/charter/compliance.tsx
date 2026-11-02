@@ -49,7 +49,7 @@ const CARDS: {
       { label: "Design rotation (no repeat of last year's card)", status: "beta" },
       { label: "Household grouping and spouse-aware cards", status: "planned" },
     ],
-    note: "Beta items work in the Daybright product preview today.",
+    note: "Beta items can be tried in the browser-based product preview with sample data. They aren't in production use yet.",
     visual: <HouseholdVisual />,
   },
 ];
@@ -66,9 +66,9 @@ export function ComplianceSection() {
     <section id="compliance" aria-labelledby="compliance-title" className="scroll-mt-24 py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl">
-          <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8A6A2B]">Enterprise compliance &amp; intelligence</p>
+          <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8A6A2B]">Compliance &amp; milestone tools</p>
           <h2 id="compliance-title" className="mt-3 font-display text-[34px] font-semibold leading-[1.05] tracking-tight text-[#16203A] text-balance sm:text-5xl">
-            Why Top Producers &amp; Compliance Officers Switch to Daybright
+            Designed for Top Producers and the Compliance Teams Who Supervise Them
           </h2>
           <p className="mt-4 text-[17px] leading-relaxed text-ink-2">
             Relationship marketing your compliance team can follow, built around the milestones that move client conversations.
@@ -103,7 +103,8 @@ export function ComplianceSection() {
           ))}
         </div>
 
-        <dl className="mt-14 grid gap-px overflow-hidden rounded-[1.5rem] bg-line ring-1 ring-line sm:grid-cols-2 lg:grid-cols-4">
+        <p className="mt-14 text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8A6A2B]">What we&rsquo;re designing for</p>
+        <dl className="mt-4 grid gap-px overflow-hidden rounded-[1.5rem] bg-line ring-1 ring-line sm:grid-cols-2 lg:grid-cols-4">
           {OUTCOMES.map((o) => (
             <div key={o.title} className="bg-paper p-6">
               <dt className="font-display text-lg font-semibold text-ink">{o.title}</dt>

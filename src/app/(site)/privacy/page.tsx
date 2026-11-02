@@ -69,6 +69,10 @@ export default function PrivacyPage() {
         <li>Which button you used to open the form (for example &ldquo;pricing&rdquo; or &ldquo;hero&rdquo;)</li>
       </ul>
       <p>
+        We also keep internal notes on each request, such as whether we&rsquo;ve contacted you and whether a Founding Charter place
+        was offered. Submitting a reservation is a nonbinding expression of interest and doesn&rsquo;t guarantee a place.
+      </p>
+      <p>
         Please don&rsquo;t include information about your own clients (for example names, account details, policy numbers or health
         information) in these forms. We don&rsquo;t need it to respond, and the forms aren&rsquo;t designed to receive it.
       </p>
@@ -120,7 +124,8 @@ export default function PrivacyPage() {
           With service providers that operate the site on our behalf, under terms that limit their use of the information:{" "}
           <strong className="text-ink">Vercel</strong> (website hosting) and <strong className="text-ink">Neon</strong> (the database
           that stores reservation records, located in the United States), plus an email delivery provider if we enable reservation
-          notification emails. <Review>confirm each provider&rsquo;s data processing terms are accepted; name the email provider if enabled</Review>
+          notification emails. Email you send to {SALES_EMAIL} is forwarded by our email forwarding provider to the inbox we use to
+          reply. <Review>name ImprovMX and the inbox provider; name Resend and Cloudflare only if enabled at launch; confirm each provider&rsquo;s data processing terms</Review>
         </li>
         <li>If required by law, or to protect the rights, safety and security of {BRAND.name}, our users or others</li>
         <li>As part of a merger, acquisition or sale of assets, subject to this policy</li>

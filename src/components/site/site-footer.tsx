@@ -7,8 +7,8 @@ const COLS = [
   {
     title: "Business",
     links: [
-      ["/#compliance", "Compliance & intelligence"],
-      ["/#integrations", "CRM integrations"],
+      ["/#compliance", "Compliance & milestone tools"],
+      ["/#integrations", "Planned CRM integrations"],
       ["/pricing", "Pricing"],
       ["/app", "Product preview"],
       ["/onboarding", "Guided setup demo"],
@@ -17,10 +17,10 @@ const COLS = [
   {
     title: "Personal cards",
     links: [
-      ["/personal", "Send a birthday card"],
+      ["/personal", "Personal cards (prototype)"],
       ["/cards", "Card collection"],
       ["/studio", "Card Studio"],
-      ["/gifts", "Gifts"],
+      ["/gifts", "Gifts (demo)"],
     ],
   },
   {

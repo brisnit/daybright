@@ -209,7 +209,7 @@ export function GiftFinder() {
           <div className="flex h-full min-h-[280px] flex-col justify-center rounded-[2rem] border border-dashed border-line-2 p-8">
             <p className="font-hand text-3xl text-ink-2">Three ideas, your call.</p>
             <p className="mt-2 max-w-sm text-[14.5px] text-ink-2">
-              Answer a few questions and we’ll suggest three gifts with the full cost, shipping included. Nothing is added to your order until you choose.
+              Answer a few questions and we’ll suggest three gifts with the full cost, shipping included. Nothing is ever charged in this demo.
             </p>
           </div>
         )}
@@ -307,7 +307,7 @@ export function GiftFinder() {
               </ol>
             )}
             <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[12.5px] text-ink-3">
-              <p>Illustrative demo merchants and prices. Nothing is added or charged until you check out.</p>
+              <p>Illustrative demo merchants and prices. Nothing is ever charged in this demo.</p>
               <button
                 type="button"
                 onClick={() => {

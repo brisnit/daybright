@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "leads:export": "node --env-file=.env.local scripts/leads-export.mjs"
+    "leads:export": "node --env-file=.env.local scripts/leads-export.mjs",
+    "leads:admin": "node --env-file=.env.local scripts/leads-admin.mjs",
+    "db:migrate": "node --env-file=.env.local scripts/db-migrate.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.2.0",

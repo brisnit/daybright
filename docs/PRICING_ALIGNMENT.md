@@ -53,3 +53,6 @@ Public marketing pages no longer show Starter/Growth/Scale. On this branch the F
 **Risk:** low, because the adapter keeps the old callers working and the migration preserves demo state.
 
 **Decisions needed before building:** the * cells above, whether Solo keeps the Starter feature restrictions, and how Sponsor partner accounts appear in the product.
+
+## Update (2026-11-02)
+Per the owner's decision, the preview plans stay as they are but are labelled **illustrative** wherever they appear (`PRICING_COPY.provisional`, billing page, onboarding plan and review steps), and a product-preview banner on every `/app` and `/onboarding` page links to Founding Charter pricing. Public standard prices and savings comparisons were removed from `TIERS`, so `STARTING_PRICE` no longer exists. Aligning preview entitlements with the charter tiers is still optional future work.

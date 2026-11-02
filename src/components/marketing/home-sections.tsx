@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { clsx } from "clsx";
 import { ArrowRight, ArrowUpRight, Check, Upload, Wand2, CalendarHeart } from "lucide-react";
-import { PRICING_COPY, STARTING_PRICE, money } from "@/config/brand";
+import { PRICING_COPY, money } from "@/config/brand";
 import { CARD_MAP } from "@/data/cards";
 import { GIFT_MAP, giftPrice } from "@/data/gifts";
 import { getCard } from "@/lib/cards";
@@ -183,8 +183,8 @@ export function OneBrandSection() {
             <p className="font-grotesk text-[12px] font-bold uppercase tracking-[0.14em] text-butter">Brand voice · {BIZ_VOICE.label}</p>
             <p className="mt-2 max-w-3xl font-display text-xl leading-snug text-paper sm:text-2xl">&ldquo;{BIZ.voice.summary}&rdquo;</p>
           </div>
-          <ButtonLink href="/business" variant="white" iconRight={<ArrowRight className="size-4" aria-hidden />}>
-            How personalization works
+          <ButtonLink href="/" variant="white" iconRight={<ArrowRight className="size-4" aria-hidden />}>
+            Daybright for firms
           </ButtonLink>
         </Reveal>
       </Container>
@@ -268,14 +268,14 @@ export function PricingPreview() {
       <Container>
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <Reveal className="max-w-2xl">
-            <Eyebrow tone="butter">Business plans</Eyebrow>
+            <Eyebrow tone="butter">For firms</Eyebrow>
             <Display id="pricing-title" className="mt-4 text-4xl leading-[1] text-ink sm:text-6xl">
-              From {money(STARTING_PRICE)} a month. Cards included.
+              Founding Charter pricing. Cards included.
             </Display>
             <p className="mt-4 text-lg font-medium text-ink">{PRICING_COPY.includes}</p>
           </Reveal>
           <Link href="/pricing" className="group inline-flex items-center gap-1.5 font-semibold text-cobalt">
-            Compare plans in detail
+            See Founding Charter pricing
             <ArrowUpRight className="size-4 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden />
           </Link>
         </div>

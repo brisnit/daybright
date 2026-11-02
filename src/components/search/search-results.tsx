@@ -37,7 +37,7 @@ export function CreateFromIdea({ query, lead }: { query: string; lead?: boolean 
         <p className={clsx("mt-1.5 font-display text-2xl font-semibold tracking-tight", lead ? "text-paper" : "text-ink")}>
           {lead ? "This sounds like a card worth making from scratch." : "Turn this idea into an original card."}
         </p>
-        <p className={clsx("mt-1 text-[14px]", lead ? "text-paper/70" : "text-ink-2")}>Card Studio sketches three concepts from your words, ready to refine.</p>
+        <p className={clsx("mt-1 text-[14px]", lead ? "text-paper/70" : "text-ink-2")}>Card Studio sketches three concepts from your words, ready to refine (demo).</p>
       </div>
       <ButtonLink href={studioHref(query)} variant={lead ? "coral" : "ink"} iconRight={<ArrowRight className="size-4" aria-hidden />} className="shrink-0">
         Create a card from this idea

@@ -4,21 +4,22 @@ import { useId, useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { clsx } from "clsx";
 import { Plus } from "lucide-react";
-import { CONSUMER, PRICING_COPY, STARTING_PRICE, money } from "@/config/brand";
+import { CONSUMER, PRICING_COPY, money } from "@/config/brand";
 import { TIERS } from "@/config/charter";
 import { Container, Display, Eyebrow, Reveal } from "./primitives";
 
 export type FaqItem = { q: string; a: ReactNode };
 
-const planSummary = TIERS.map((t) => (t.standard ? `${t.name} ${money(t.standard.amount)}/${t.standard.cadence}` : `${t.name} custom`)).join(", ");
+const planSummary = TIERS.map((t) => (t.charter ? `${t.name} ${money(t.charter.amount)}/${t.charter.cadence} (proposed)` : `${t.name} custom`)).join(", ");
 
 export const FAQS: Record<string, FaqItem> = {
   included: {
     q: "What’s included in a business plan?",
     a: (
       <>
-        Every plan includes the digital card collection, birthday scheduling and automation, CSV import, and your logo and signature
-        on each card. Plans differ by contacts, seats and features: {planSummary}, with Founding Charter rates for early members (see Pricing). {PRICING_COPY.includes}
+        The digital card collection, birthday scheduling and automation, CSV import, and your logo and signature on each card are
+        in the product preview and still in development. Proposed Founding Charter plans differ by contacts, seats and features:{" "}
+        {planSummary}. See Pricing for details. Nothing is charged today.
       </>
     ),
   },
@@ -36,7 +37,7 @@ export const FAQS: Record<string, FaqItem> = {
     q: "How do physical gifts get a delivery address?",
     a: (
       <>
-        You can enter an address yourself, or let the recipient add their own when they open the card. Their address goes
+        In the live product, you could enter an address yourself, or let the recipient add their own when they open the card. Their address goes
         straight to the gift order, and the card arrives either way. In this prototype, address entry is simulated.
       </>
     ),
@@ -49,7 +50,7 @@ export const FAQS: Record<string, FaqItem> = {
     q: "Can I review cards before they’re sent?",
     a: (
       <>
-        Yes. Each automation can send automatically or wait for review. In review, you can preview every card, edit the message,
+        In the product preview, each automation can send automatically or wait for review. In review, you can preview every card, edit the message,
         swap the design, skip one birthday, and approve the ones you’re happy with. Gifts can always require approval.
       </>
     ),
@@ -81,22 +82,10 @@ export const FAQS: Record<string, FaqItem> = {
     q: "Can I send just one card without a plan?",
     a: (
       <>
-        Yes. Pick a card or make one in Card Studio, personalize it, and send it now or schedule it. One digital card is{" "}
+        Yes. Pick a card or make one in Card Studio, personalize it, and send it now or schedule it (simulated in this demo). One digital card is{" "}
         {money(CONSUMER.digitalCardPrice)} in this demo (provisional pricing), plus any gift you choose to add.
       </>
     ),
-  },
-  annual: {
-    q: "Are there annual contracts or setup fees?",
-    a: (
-      <>
-        Plans are monthly, starting at {money(STARTING_PRICE)}/month. There are no setup fees. {PRICING_COPY.provisional}
-      </>
-    ),
-  },
-  cancelSend: {
-    q: "Can I change my plan later?",
-    a: <>Yes. You can move between plans any time from Plan &amp; billing. In this demo, plan changes are simulated.</>,
   },
 };
 

@@ -9,7 +9,9 @@ The content now reflects what is actually implemented: Vercel hosting, Neon data
 
 ## What the form actually collects (as implemented)
 - **Fields:** name; title (optional); firm; website (optional); work email; CRM; tier; team size and note (inquiry only).
-- **Consent:** a boolean plus the consent wording, the received-at timestamp, the source CTA and an idempotency key.
+- **Consent:** a boolean plus the exact consent wording shown, the received-at timestamp, the source CTA and an idempotency key.
+- **Internal follow-up:** a status (`new`, `contacted`, `accepted`, `waitlisted`, `declined`, `withdrawn`), an optional internal note and the time it changed. These are set by the team, never by the form, and the policy discloses them.
+- **Email to hello@:** forwarded by ImprovMX to a Gmail inbox. Messages sent through the manual email fallback land there, not in the database.
 - **IP address:** not stored. A keyed one-way hash (HMAC-SHA256 with `LEAD_IP_HASH_SECRET`, truncated) is stored with the lead for abuse limits. Counsel should confirm whether this is treated as personal data; the policy discloses it either way. Vercel's request logs still capture IPs.
 - **Not stored:** user agent, form-fill timing (used only as a bot check).
 - **Browser:** an unsent request copy in localStorage, removed on success.
@@ -17,9 +19,9 @@ The content now reflects what is actually implemented: Vercel hosting, Neon data
 - **Fonts:** self-hosted via `next/font`, so there are no runtime calls to Google Fonts.
 
 ## Open items
-1. Legal entity name, state of organization, mailing address and effective date.
+1. Legal entity name, state of organization, mailing address and effective date. **Pending the owner's legal meeting on 2026-11-03.** The policy keeps an unresolved placeholder; no entity is assumed in code or docs.
 2. Applicable laws: which US state privacy laws apply (thresholds, B2B exemptions); whether EU/UK visitors are in scope (legal bases, international transfer language); CAN-SPAM for follow-up emails.
-3. Service providers to list once chosen: hosting, lead database, email delivery, any CRM receiving webhooks. Sign DPAs.
+3. Service providers: Vercel (hosting) and Neon (lead database) are in use. ImprovMX (forwarding) and Google/Gmail (inbox) handle email to hello@. Resend (lead alerts) and Cloudflare Turnstile (bot check) are prepared but not active. Confirm each one's data processing terms, and list only the services actually enabled at launch.
 4. Retention period for reservation records (the draft suggests 24 months after last contact) and deletion procedure.
 5. Data-subject request process: verification method, response timelines, an authorized-agent process if California applies.
 6. Security statements: confirm encryption at rest and access controls for the chosen store before publishing them.

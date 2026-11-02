@@ -22,7 +22,7 @@ export function StepGift({ card, draft, setGift }: { card: CardDesign; draft: Se
 
   return (
     <div>
-      <StepHeading kicker="Step three" title="Add a gift, if you like" sub="Completely optional. Gifts are priced separately and listed clearly at checkout." />
+      <StepHeading kicker="Step three" title="Add a gift, if you like" sub="Completely optional. Gifts are priced separately and listed clearly on the review step." />
 
       {/* Just the card */}
       <button
@@ -79,7 +79,7 @@ export function StepGift({ card, draft, setGift }: { card: CardDesign; draft: Se
 
       <div className="mt-12">
         <h3 className="font-display text-2xl font-semibold tracking-tight text-ink">Curated gifts</h3>
-        <p className="text-[14px] text-ink-3">Physical, shipped separately from small makers. Shipping is shown up front.</p>
+        <p className="text-[14px] text-ink-3">Physical (demo merchants; nothing ships). Shipping is shown up front.</p>
       </div>
       <ul className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {physical.map((g) => (

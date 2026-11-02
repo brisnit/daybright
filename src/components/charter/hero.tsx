@@ -45,9 +45,9 @@ export function CharterHero() {
             </span>
           </h1>
           <p className="mt-6 max-w-xl text-[17px] leading-relaxed text-ink-2 sm:text-lg">
-            Replace costly physical mailers and easy-to-ignore CRM emails with tactile digital stationery: envelopes clients actually open,
-            wet-ink-style signatures and optional micro-gifts. Bring in your client data to automate birthdays, policy renewals,
-            housiversaries and the relationship milestones that matter.
+            Tactile digital stationery in place of printed mailers and plain CRM emails: animated envelopes, wet-ink-style signatures
+            and, once gifting launches, optional micro-gifts. Daybright is being built to turn your client data into timely cards for
+            birthdays, policy renewals, housiversaries and the other milestones that matter.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
@@ -71,8 +71,8 @@ export function CharterHero() {
             ))}
           </ul>
           <p className="mt-3 max-w-xl text-[12px] leading-relaxed text-ink-3">
-            Capabilities marked Planned are in development for Charter members and not yet available. Daybright does not provide
-            legal or compliance advice, and no regulator has reviewed or approved it.
+            Capabilities marked Planned are in development, not yet available and have no committed release date. Daybright does
+            not provide legal or compliance advice, and no regulator has reviewed or approved it.
           </p>
         </div>
 

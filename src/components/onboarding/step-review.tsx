@@ -27,7 +27,7 @@ export function ReviewStep({ d, step, total, goTo, ids }: { d: OnboardingDraft; 
       <div className="grid gap-8 lg:grid-cols-[1fr_minmax(0,320px)]">
         <dl className="divide-y divide-line overflow-hidden rounded-3xl bg-white ring-1 ring-line">
           <Row label="Plan" onEdit={() => goTo(ids.plan)}>
-            <span className="font-semibold text-ink">{plan.name}</span> · {money(plan.monthlyPrice)}/month · {plan.monthlySends.toLocaleString()} sends
+            <span className="font-semibold text-ink">{plan.name}</span> · {money(plan.monthlyPrice)}/month (illustrative) · {plan.monthlySends.toLocaleString()} sends
             <span className="mt-1 block text-[13px] text-ink-3">{PRICING_COPY.includes}</span>
           </Row>
           <Row label="Business" onEdit={() => goTo(ids.brand)}>

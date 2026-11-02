@@ -183,7 +183,7 @@ export function LibraryPage() {
             </div>
           )}
           <p className="mt-4 text-[13px] text-ink-3">
-            Original AI designs are reviewed once by a person before automations can send them. Need something new?{" "}
+            You approve each original design once before automations can use it. Need something new?{" "}
             <Link href="/app/studio" className="font-semibold text-cobalt underline-offset-2 hover:underline">
               Create in Card Studio
             </Link>

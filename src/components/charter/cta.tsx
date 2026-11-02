@@ -14,7 +14,7 @@ export function CharterButton({
   size = "lg",
   variant = "ink",
   className,
-  children = "Claim Founding Charter Access",
+  children = "Request Founding Charter Access",
 }: {
   source: string;
   tier?: "solo" | "agency" | null;
@@ -43,7 +43,7 @@ export function SampleButton({ source, className, tone = "light" }: { source: st
         className,
       )}
     >
-      Unwrap a Live Sample Card
+      Open a Sample Card
       <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
     </button>
   );
@@ -63,7 +63,7 @@ export function CharterBand({ source, title, body }: { source: string; title: st
         <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">
           <CharterButton source={source} variant="white" />
           <p className="text-[12px] text-paper/60">
-            Limited to {CHARTER.seats} founding firms · No payment to reserve
+            Limited to {CHARTER.seats} founding firms · Nonbinding · No payment
           </p>
         </div>
       </div>
@@ -95,10 +95,10 @@ export function StickyCharterBar() {
         >
           <p className="min-w-0 flex-1 text-[12.5px] leading-tight">
             <span className="block font-semibold">Founding Charter</span>
-            <span className="text-paper/70">{CHARTER.seats} seats · no payment to reserve</span>
+            <span className="text-paper/70">{CHARTER.seats} seats · nonbinding, no payment</span>
           </p>
           <Button size="md" variant="white" onClick={() => openReservation(null, "sticky-mobile")}>
-            Claim access
+            Request access
           </Button>
         </motion.div>
       )}

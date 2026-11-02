@@ -87,26 +87,27 @@ export function Confirmation({ send, card, total, onSendAnother }: { send: Send;
       <motion.div initial={reduce ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: reduce ? 0 : 1.1, duration: 0.4 }}>
         <p className="inline-flex items-center gap-2 rounded-full bg-mint-soft px-3 py-1 text-[13px] font-semibold text-mint-deep">
           {scheduled ? <CalendarCheck className="size-4" aria-hidden /> : <MailCheck className="size-4" aria-hidden />}
-          {scheduled ? `Scheduled for ${whenLabel}` : "Sent"}
+          {scheduled ? `Demo: scheduled for ${whenLabel}` : "Demo send complete"}
         </p>
+        <SimulatedNote className="mt-3">Delivery is simulated. No email is sent from this prototype.</SimulatedNote>
         <h2 className="mt-4 font-display text-5xl font-semibold leading-[0.95] tracking-tight text-ink sm:text-6xl">
           {scheduled ? (
             <>
-              Sealed and <span className="italic text-cobalt">ready.</span>
+              It would be sealed and <span className="italic text-cobalt">ready.</span>
             </>
           ) : (
             <>
-              On its <span className="italic text-cobalt">way.</span>
+              It would be on its <span className="italic text-cobalt">way.</span>
             </>
           )}
         </h2>
         <p className="mt-4 max-w-md text-[17px] leading-relaxed text-ink-2">
           {scheduled
-            ? `${name || "They"} will get your card at ${send.recipientEmail} on ${whenLabel}.`
-            : `${name || "They"} will find your card at ${send.recipientEmail} in a moment.`}
+            ? `In the live product, ${name || "they"} would get this at ${send.recipientEmail} on ${whenLabel}. Nothing was sent.`
+            : `In the live product, ${name || "they"} would get this at ${send.recipientEmail}. Nothing was sent.`}
           {gift && (gift.addressRequired && send.gift?.status === "awaiting-address"
-            ? ` They'll add a shipping address for the ${gift.name.toLowerCase()} when they open it.`
-            : ` The ${gift.name.toLowerCase()} comes with it.`)}
+            ? ` They would add a shipping address for the ${gift.name.toLowerCase()} when they open it.`
+            : ` The ${gift.name.toLowerCase()} would come with it.`)}
         </p>
         {total != null && <p className="mt-3 text-[14px] text-ink-3">Demo order total {money(total, { cents: true })}. No payment was taken.</p>}
 
@@ -126,11 +127,10 @@ export function Confirmation({ send, card, total, onSendAnother }: { send: Send;
             Send another card
           </Button>
         </div>
-        <SimulatedNote className="mt-6">Delivery is simulated. No email is sent from this prototype.</SimulatedNote>
         <p className="mt-6 text-[14px] text-ink-3">
           Remembering birthdays for a whole client list?{" "}
-          <Link href="/business" className="inline-flex items-center gap-1 font-semibold text-cobalt hover:underline">
-            See business plans <ArrowRight className="size-3.5" aria-hidden />
+          <Link href="/" className="inline-flex items-center gap-1 font-semibold text-cobalt hover:underline">
+            Daybright for firms <ArrowRight className="size-3.5" aria-hidden />
           </Link>
         </p>
       </motion.div>

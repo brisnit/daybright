@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { HydrationGate } from "@/components/hydration-gate";
 import { FlowSkeleton, SendFlow } from "@/components/send/send-flow";
+import { PreviewBanner } from "@/components/site/preview-banner";
 
 export const metadata: Metadata = {
   title: "Send a card",
@@ -10,10 +11,13 @@ export const metadata: Metadata = {
 
 export default function SendPage() {
   return (
-    <Suspense fallback={<FlowSkeleton />}>
-      <HydrationGate fallback={<FlowSkeleton />}>
-        <SendFlow />
-      </HydrationGate>
-    </Suspense>
+    <>
+      <PreviewBanner />
+      <Suspense fallback={<FlowSkeleton />}>
+        <HydrationGate fallback={<FlowSkeleton />}>
+          <SendFlow />
+        </HydrationGate>
+      </Suspense>
+    </>
   );
 }

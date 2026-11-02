@@ -40,7 +40,7 @@ export function StepDelivery({
           onChange={(e) => patch({ recipientEmail: e.target.value })}
           placeholder="name@example.com"
           error={errors.recipientEmail}
-          hint="We only use it to deliver this card."
+          hint="Stays in your browser in this demo. Nothing is emailed."
         />
 
         <fieldset className="mt-6">
@@ -49,12 +49,12 @@ export function StepDelivery({
             <ChoiceCard selected={draft.when === "now"} onClick={() => patch({ when: "now" })}>
               <SendIcon className="size-5 text-cobalt" aria-hidden />
               <p className="mt-3 font-semibold text-ink">Send now</p>
-              <p className="text-[13px] text-ink-3">Arrives within a minute of checkout.</p>
+              <p className="text-[13px] text-ink-3">In the live product, it would arrive within a minute.</p>
             </ChoiceCard>
             <ChoiceCard selected={draft.when === "schedule"} onClick={() => patch({ when: "schedule" })}>
               <CalendarClock className="size-5 text-coral-deep" aria-hidden />
               <p className="mt-3 font-semibold text-ink">Schedule it</p>
-              <p className="text-[13px] text-ink-3">Land it on the day, at a time you choose.</p>
+              <p className="text-[13px] text-ink-3">In the live product, it would land on the day, at a time you choose.</p>
             </ChoiceCard>
           </div>
         </fieldset>
@@ -78,7 +78,7 @@ export function StepDelivery({
               optional
               value={draft.time}
               onChange={(e) => patch({ time: e.target.value })}
-              hint={draft.time ? `Delivers at ${fmtTime(draft.time)}, your local time.` : "Leave blank and it goes out at 9:00 AM."}
+              hint={draft.time ? `Would deliver at ${fmtTime(draft.time)}, your local time.` : "Leave blank and it would go out at 9:00 AM."}
             />
           </div>
         )}
@@ -93,7 +93,7 @@ export function StepDelivery({
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <ChoiceCard selected={draft.addressMode === "ask-recipient"} onClick={() => patch({ addressMode: "ask-recipient" })}>
               <p className="pr-6 font-semibold text-ink">Let {firstName(draft.recipientName) || "them"} enter their own address</p>
-              <p className="mt-1 text-[13px] text-ink-3">They add it privately when they open the card. The gift ships after that.</p>
+              <p className="mt-1 text-[13px] text-ink-3">They would add it privately when they open the card.</p>
             </ChoiceCard>
             <ChoiceCard selected={draft.addressMode === "enter"} onClick={() => patch({ addressMode: "enter" })}>
               <p className="pr-6 font-semibold text-ink">I&rsquo;ll enter the address</p>

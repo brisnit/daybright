@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { clsx } from "clsx";
 import { ArrowRight, CalendarDays, Gift, LayoutGrid, Send, Users, Wand2, Zap } from "lucide-react";
-import { getPlan, money } from "@/config/brand";
+import { money } from "@/config/brand";
 import { getCard } from "@/lib/cards";
 import { CardFront, initials } from "@/components/cards/card-art";
 import { Badge } from "@/components/ui/badges";
@@ -27,7 +27,6 @@ const NAV = [
 
 /** A designed, static preview of the business workspace, built from real components and demo data. */
 export function DashboardPreview({ className }: { className?: string }) {
-  const plan = getPlan("growth");
   return (
     <div className={clsx("relative", className)}>
       <div className="overflow-hidden rounded-[1.75rem] bg-white shadow-lift ring-1 ring-line">
@@ -38,6 +37,9 @@ export function DashboardPreview({ className }: { className?: string }) {
           <span className="size-2.5 rounded-full bg-mint" />
           <span className="ml-3 truncate rounded-full bg-white px-3 py-1 text-[11px] font-medium text-ink-3 ring-1 ring-line">
             Demo workspace · {BIZ.name}
+          </span>
+          <span className="ml-auto shrink-0 rounded-full bg-butter-soft px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-butter-deep">
+            Demo
           </span>
         </div>
         <div className="grid sm:grid-cols-[150px_1fr]">
@@ -76,7 +78,7 @@ export function DashboardPreview({ className }: { className?: string }) {
               {[
                 { k: "Coming up", v: "18", sub: "next 30 days", tone: "bg-butter-soft" },
                 { k: "Scheduled", v: "12", sub: "cards ready", tone: "bg-cobalt-soft" },
-                { k: "Sends left", v: `${plan.monthlySends - 41}`, sub: `of ${plan.monthlySends}`, tone: "bg-mint-soft" },
+                { k: "Needs review", v: "3", sub: "cards to approve", tone: "bg-mint-soft" },
                 { k: "Gift spend", v: money(45), sub: `of ${money(150)} budget`, tone: "bg-coral-soft" },
               ].map((s) => (
                 <div key={s.k} className={clsx("rounded-xl px-3 py-2", s.tone)}>

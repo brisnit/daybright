@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, Lock } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import type { CardDesign, SendDraft } from "@/lib/types";
 import { CONSUMER, money } from "@/config/brand";
 import { GIFT_MAP } from "@/data/gifts";
@@ -29,11 +29,11 @@ export function StepReview({
   const gift = draft.gift ? GIFT_MAP[draft.gift.giftId] : null;
   const name = firstName(draft.recipientName);
   const when =
-    draft.when === "now" ? "Right after checkout" : `${fmtLongDate(draft.date)} at ${fmtTime(draft.time || "09:00")}`;
+    draft.when === "now" ? "Right away (demo)" : `${fmtLongDate(draft.date)} at ${fmtTime(draft.time || "09:00")}`;
 
   return (
     <div>
-      <StepHeading kicker="Last look" title="Review and send" sub="Everything is editable until you send." />
+      <StepHeading kicker="Last look" title="Review and send" sub="Everything is editable. This is a demo, so nothing is sent." />
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-12">
         <div className="flex flex-col gap-4">
@@ -83,7 +83,7 @@ export function StepReview({
 
         <aside>
           <div className="rounded-3xl bg-white p-5 shadow-soft ring-1 ring-line sm:p-6 lg:sticky lg:top-24">
-            <h3 className="font-display text-2xl font-semibold tracking-tight text-ink">Order summary</h3>
+            <h3 className="font-display text-2xl font-semibold tracking-tight text-ink">Demo summary</h3>
             <dl className="mt-5 flex flex-col gap-3 text-[15px]">
               <Line label="Digital card" sub="One-time, provisional demo pricing" value={money(t.card)} />
               {gift && <Line label={gift.name} sub={gift.kind === "digital" ? "Gift card value" : "Gift"} value={money(t.gift)} />}
@@ -95,11 +95,11 @@ export function StepReview({
             </dl>
 
             <SimulatedNote className="mt-5 w-full">Demo checkout — no payment is taken</SimulatedNote>
-            <Button size="lg" className="mt-4 w-full" onClick={onPlace} disabled={placing} icon={placing ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Lock className="size-4" aria-hidden />}>
-              {placing ? "Sending…" : draft.when === "now" ? `Send now · ${money(t.total, { cents: true })}` : `Schedule card · ${money(t.total, { cents: true })}`}
+            <Button size="lg" className="mt-4 w-full" onClick={onPlace} disabled={placing} icon={placing ? <Loader2 className="size-4 animate-spin" aria-hidden /> : undefined}>
+              {placing ? "Finishing demo…" : draft.when === "now" ? "Finish demo send" : "Finish demo schedule"}
             </Button>
             <p className="mt-3 text-[12px] leading-relaxed text-ink-3">
-              {CONSUMER.note} No card details are collected in this prototype. Digital cards are included with business plans.
+              {CONSUMER.note} No card details are collected in this prototype.
             </p>
           </div>
         </aside>

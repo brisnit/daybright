@@ -352,7 +352,7 @@ function Experience({ send }: { send: Send }) {
             <Section>
               <SectionHead
                 eyebrow="One more thing"
-                title={gift.gift.kind === "digital" ? "There's a gift, too." : "Something's on its way."}
+                title={gift.gift.kind === "digital" ? "There's a gift, too." : "There's a sample gift, too."}
                 accent={accent}
               />
               <GiftReveal

@@ -47,6 +47,14 @@ export type FieldErrors = Partial<Record<keyof LeadSubmission, string>>;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const MAX = 300;
 
+/**
+ * Consent wording shown next to the checkbox. The server stores this exact text with each lead,
+ * so it must match what the visitor saw.
+ */
+export function consentText(kind: LeadKind) {
+  return `I agree that Daybright may store these details and contact me by email about this ${kind === "inquiry" ? "request" : "reservation"}. We use them only to respond and won't sell them. Please don't include client information.`;
+}
+
 export function normalizeWebsite(v: string) {
   const t = v.trim();
   if (!t) return "";

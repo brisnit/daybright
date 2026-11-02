@@ -18,22 +18,29 @@ Reservation / inquiry modal  ──POST /api/reservations──▶  route handle
 | --- | --- |
 | Validation | Shared rules client- and server-side (`src/lib/reservations.ts`): required name, firm, email, CRM, tier, consent; email/URL format; length limits; tier must match the form type |
 | Duplicates | Client idempotency key (reused when an unsent request is restored), plus a `unique` constraint in the database. A repeat returns the original reference with no new row |
-| Spam / bots | Honeypot field; time-trap (submitted under 2.5 s → silently dropped); same-origin check; JSON-only; 16 KB body limit; optional Cloudflare Turnstile |
+| Spam / bots | Honeypot field; time-trap (submitted under 2.5 s → silently dropped); same-origin check; JSON-only; 16 KB body limit; optional Cloudflare Turnstile (prepared, off; token refreshed after each failed attempt) |
 | Abuse limits | Durable, database-backed: 5 requests per IP per 10 min and 3 per email per day. Plus an in-memory burst limit per instance |
 | Privacy | The raw IP is never stored, only an HMAC with `LEAD_IP_HASH_SECRET`. No payment data. Visitors are told not to submit client information |
 | Secrets | Database credentials live only in Vercel's encrypted environment variables and the gitignored `.env.local` |
 | Testing hook | `x-lead-test-fault: storage` simulates a storage failure only when `LEAD_TEST_FAULTS=1` **and** `VERCEL_ENV !== "production"`. It's set only for Preview on this branch |
 
 ## Data model
-Table `reservations`, created automatically on first use (idempotent, so fresh Neon preview branches work too):
+Table `reservations`. Its schema is defined as ordered, idempotent migrations in `src/lib/lead-schema.mjs`, recorded in `schema_migrations`. The app applies pending migrations on its first database request, so fresh Neon preview branches work. `npm run db:migrate` applies them explicitly; use it for Production before launch.
 - **Lead fields:** `id`, `received_at`, `kind`, `tier`, `full_name`, `title`, `firm`, `website`, `email`, `crm`, `seats`, `message`
 - **Consent and source:** `consent`, `consent_text`, `source`
 - **Integrity and abuse limits:** `idempotency_key` (unique), `ip_hash`
-- **Follow-up:** `status` (`new` by default; use it to track follow-up)
+- **Follow-up:** `status`, one of `new` (default) · `contacted` · `accepted` · `waitlisted` · `declined` · `withdrawn`. The database enforces this with a check constraint. Also `status_note` and `status_updated_at`.
+- **Consent wording:** `consent_text` stores the exact sentence shown next to the checkbox (`consentText()` in `src/lib/reservations.ts`).
+
+## Founding Charter cap and status
+- A reservation is a nonbinding expression of interest, and submitting never guarantees a seat. The public form always creates `new`, and it can't set or read status.
+- Only `accepted` reservations count toward `CHARTER.seats` (15). `npm run leads:admin -- set <reference> accepted` refuses once 15 are accepted. The cap is read from `src/config/charter.ts`, so it has a single source.
+- Commands: `npm run leads:admin -- summary`, `-- list [status]`, `-- set <reference> <status> ["note"]`. `<reference>` is the 8-character code the visitor sees on the success screen.
 
 ## Reading leads
 - **Neon console:** Vercel dashboard → Storage → `daybright-leads` → Open in Neon → Tables → `reservations`.
-- **CSV:** run `vercel env pull .env.local && npm run leads:export > leads.csv`. The export guards against spreadsheet formula injection. Don't commit the output.
+- **Command line:** `npm run leads:admin -- list` (see above).
+- **CSV:** run `vercel env pull .env.local && npm run leads:export > leads.csv`. Status, note and status time are included. The export guards against spreadsheet formula injection. Don't commit the output.
 - **Instant alerts:** configure the optional Resend email (see `PRODUCTION_SETUP.md`).
 
 ## Responses
