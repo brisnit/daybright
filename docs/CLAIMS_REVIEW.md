@@ -41,7 +41,7 @@ Basis: as of this change, the codebase is a front-end product prototype. It has 
   - Sponsor: $349/mo vs $499/mo, save 30%.
   - Savings are computed from config, not typed in.
 - **Feature quotas:** contacts, seats, SMS, sponsored partners and "unlimited". They live in `QUOTAS` (`confirmed: false`), and while unconfirmed each quota feature shows "Proposed limit" with a note that limits are subject to confirmation. "Unlimited" may need a fair-use policy.
-- **Sales email:** `hello@daybright.store` (`SALES_EMAIL`, with `SALES_EMAIL_VERIFIED = false`) is provisional and must be verified before launch. It's used as the reservation fallback, in the footer and FAQ, and on the privacy page.
+- **Sales email:** `hello@daybright.store` receives mail via ImprovMX forwarding, verified 2026-11-02 (`SALES_EMAIL_VERIFIED = true`). It's used in the footer and FAQ, on the privacy page, and as a manual fallback shown only after a failed submission. It's inbound only; someone must be named to monitor it.
 - **CRM tiles:** text-based by decision. Official logos would require each owner's brand-guideline approval.
 
 ## Other open decisions
