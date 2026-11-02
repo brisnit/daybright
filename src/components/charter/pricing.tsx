@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { clsx } from "clsx";
 import { Check } from "lucide-react";
-import { CHARTER, GIFTING_TERMS, TIERS, tierSavings, type Tier } from "@/config/charter";
+import { CHARTER, GIFTING_TERMS, QUOTAS, TIERS, tierSavings, type Tier } from "@/config/charter";
 import { Segmented } from "@/components/ui/controls";
 import { Button } from "@/components/ui/button";
 import { track } from "@/lib/analytics";
@@ -148,7 +148,12 @@ export function PricingMatrix({ source = "pricing", headingLevel = "h2" }: { sou
                     <Check className={clsx("mt-0.5 size-4 shrink-0", featured ? "text-[#E9D9A8]" : "text-[#8A6A2B]")} aria-hidden />
                     <span className="flex flex-1 flex-col items-start gap-1">
                       <span>{f.label}</span>
-                      <StatusChip status={f.status} dark={featured} />
+                      <span className="flex flex-wrap items-center gap-1.5">
+                        <StatusChip status={f.status} dark={featured} />
+                        {f.quota && !QUOTAS.confirmed && (
+                          <span className={clsx("text-[11px] font-medium", featured ? "text-paper/60" : "text-ink-3")}>Proposed limit</span>
+                        )}
+                      </span>
                     </span>
                   </li>
                 ))}
@@ -163,7 +168,8 @@ export function PricingMatrix({ source = "pricing", headingLevel = "h2" }: { sou
         <StatusLegend statuses={["beta", "planned", "roadmap", "concept", "service"]} />
         <p className="mt-4 text-[12px] leading-relaxed text-ink-3">
           Prices are proposed launch pricing in US dollars. Reserving a charter seat is not a purchase: no billing is active and no
-          payment is collected on this site. Charter pricing is confirmed in writing when we follow up. The RESPA / marketing-compliance
+          payment is collected on this site. Charter pricing is confirmed in writing when we follow up. Contact, seat, SMS and partner-account limits marked
+          &ldquo;Proposed limit&rdquo; are subject to confirmation before launch. The RESPA / marketing-compliance
           split-tracking concept is subject to legal review before it is offered.
         </p>
       </div>

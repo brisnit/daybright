@@ -22,10 +22,15 @@ export const AVAILABILITY: Record<Availability, { label: string; description: st
   proposed: { label: "Proposed terms", description: "Proposed commercial terms, subject to change before launch." },
 };
 
-/** Contact channel for reservations and the fallback when submission fails. Verify this mailbox before launch. */
+/**
+ * Contact channel for reservations and the fallback when submission fails.
+ * PROVISIONAL: the mailbox must be verified (send + receive) before launch.
+ */
 export const SALES_EMAIL = "hello@daybright.store";
+export const SALES_EMAIL_VERIFIED = false;
 
 export const CHARTER = {
+  /** Founding Charter seat limit shown across the site. Change here only. */
   seats: 15,
   programName: "Founding Charter",
   /** Supplied claim: "White-Glove CRM Setup Included". Adapted until CRM connections exist. */
@@ -34,9 +39,23 @@ export const CHARTER = {
 
 export type TierId = "solo" | "agency" | "sponsor" | "enterprise";
 
+/**
+ * Proposed plan quotas. Subject to confirmation: while `confirmed` is false, every quota-based feature
+ * is labeled "Proposed limit" on the site.
+ */
+export const QUOTAS = {
+  confirmed: false,
+  solo: { contacts: 500, users: 1, smsPerMonth: 100 },
+  agency: { contacts: 2500, seats: 5, smsPerMonth: 500 },
+  sponsor: { partnerAccounts: 25 },
+} as const;
+
+const n = (v: number) => v.toLocaleString("en-US");
+
 type Price = { amount: number; cadence: "month" | "year"; note?: string };
 
-export type Feature = { label: string; status: Availability };
+/** `quota` marks features whose numbers are proposed and subject to confirmation. */
+export type Feature = { label: string; status: Availability; quota?: boolean };
 
 export type Tier = {
   id: TierId;
@@ -61,10 +80,10 @@ export const TIERS: Tier[] = [
     standard: { amount: 39, cadence: "month" },
     charter: { amount: 199, cadence: "year", prepaid: true, label: "Founding Charter" },
     features: [
-      { label: "Up to 500 active contacts", status: "beta" },
-      { label: "1 user profile and signature", status: "beta" },
-      { label: "Unlimited automated email cards", status: "beta" },
-      { label: "100 SMS/MMS deliveries per month", status: "planned" },
+      { label: `Up to ${n(QUOTAS.solo.contacts)} active contacts`, status: "beta", quota: true },
+      { label: `${QUOTAS.solo.users} user profile and signature`, status: "beta", quota: true },
+      { label: "Unlimited automated email cards", status: "beta", quota: true },
+      { label: `${n(QUOTAS.solo.smsPerMonth)} SMS/MMS deliveries per month`, status: "planned", quota: true },
       { label: "Voice-to-note AI mobile app (PWA)", status: "planned" },
       { label: "Auto-BCC compliance archiving", status: "planned" },
     ],
@@ -79,10 +98,10 @@ export const TIERS: Tier[] = [
     standard: { amount: 149, cadence: "month" },
     charter: { amount: 599, cadence: "year", prepaid: true, label: "Founding Charter" },
     features: [
-      { label: "Up to 2,500 active contacts", status: "beta" },
-      { label: "Up to 5 team seats with individual signatures", status: "planned" },
+      { label: `Up to ${n(QUOTAS.agency.contacts)} active contacts`, status: "beta", quota: true },
+      { label: `Up to ${QUOTAS.agency.seats} team seats with individual signatures`, status: "planned", quota: true },
       { label: "Native 2-way CRM sync for supported systems", status: "planned" },
-      { label: "500 SMS/MMS deliveries per month", status: "planned" },
+      { label: `${n(QUOTAS.agency.smsPerMonth)} SMS/MMS deliveries per month`, status: "planned", quota: true },
       { label: "Household grouping", status: "planned" },
       { label: "Multi-year smart tracks (no repeated designs)", status: "beta" },
       { label: "White-glove contact and brand setup", status: "service" },
@@ -96,7 +115,7 @@ export const TIERS: Tier[] = [
     standard: { amount: 499, cadence: "month" },
     charter: { amount: 349, cadence: "month", label: "Charter Partner" },
     features: [
-      { label: "Sponsor up to 25 referral partner accounts", status: "planned" },
+      { label: `Sponsor up to ${QUOTAS.sponsor.partnerAccounts} referral partner accounts`, status: "planned", quota: true },
       { label: "Dual co-branded card footers and wax seals", status: "planned" },
       { label: "RESPA / marketing-compliance split tracking", status: "concept" },
       { label: "Central sponsor ROI dashboard", status: "roadmap" },
@@ -111,7 +130,7 @@ export const TIERS: Tier[] = [
     charter: null,
     indicativePerSeat: { min: 15, max: 22, approved: false },
     features: [
-      { label: "Unlimited contacts and sub-accounts", status: "roadmap" },
+      { label: "Unlimited contacts and sub-accounts", status: "roadmap", quota: true },
       { label: "Central compliance approval queue", status: "planned" },
       { label: "Custom-domain white labeling", status: "roadmap" },
       { label: "Dedicated account manager", status: "service" },

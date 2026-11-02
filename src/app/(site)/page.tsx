@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { BRAND } from "@/config/brand";
-import { TIERS } from "@/config/charter";
+import { CHARTER, TIERS } from "@/config/charter";
 import { CharterHome } from "@/components/charter/home";
 
 const title = `${BRAND.name} · Client Retention & Milestone Intelligence for Regulated Industries`;
 const description =
-  "Tactile digital stationery, wet-ink-style signatures and optional micro-gifts for financial advisors, insurance agencies, real estate teams and legal practices. Founding Charter access limited to 15 firms.";
+  `Tactile digital stationery, wet-ink-style signatures and optional micro-gifts for financial advisors, insurance agencies, real estate teams and legal practices. Founding Charter access limited to ${CHARTER.seats} firms.`;
 
 export const metadata: Metadata = {
   title: { absolute: title },

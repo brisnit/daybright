@@ -292,7 +292,11 @@ function LeadForm({ request, onClose }: { request: LeadRequest; onClose: () => v
               I agree that {""}
               <span className="font-semibold text-ink">Daybright</span> may store these details and contact me by email about
               this {isInquiry ? "request" : "reservation"}. We use them only to respond and won&rsquo;t sell them. Please don&rsquo;t include client
-              information.
+              information. See our{" "}
+              <a href="/privacy" target="_blank" rel="noopener" className="font-semibold text-cobalt underline-offset-2 hover:underline">
+                Privacy Policy
+              </a>
+              .
             </span>
           </label>
           {show("consent") && <FieldError>{errors.consent}</FieldError>}

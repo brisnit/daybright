@@ -28,6 +28,7 @@ const COLS = [
     links: [
       ["/#sample", "Interactive sample card"],
       ["/open?id=demo-card", "Full-screen recipient view"],
+      ["/privacy", "Privacy Policy"],
     ],
   },
 ] as const;

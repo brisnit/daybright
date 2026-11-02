@@ -1,23 +1,55 @@
-import { appendFile, mkdir } from "node:fs/promises";
-import path from "node:path";
 import { normalizeWebsite, validateLead, type LeadSubmission } from "@/lib/reservations";
+import { deliverLead } from "@/lib/lead-store";
 
 /**
  * Founding Charter reservations and Sponsor / Enterprise inquiries.
- *
- * Delivery, in order:
- *  1. RESERVATION_WEBHOOK_URL is set → POST the lead as JSON (optional bearer RESERVATION_WEBHOOK_SECRET).
- *     Success only on a 2xx from the webhook.
- *  2. Otherwise, outside production (or with RESERVATION_FILE_STORE=1) → append to .data/reservations.jsonl.
- *  3. Otherwise → 503 not_configured. The client shows an error with an email fallback; it never shows success.
- *
+ * Contract: src/lib/reservations.ts. Delivery: src/lib/lead-store.ts. Setup: docs/LEAD_CAPTURE.md.
  * No payment is requested or processed here.
  */
 
-const seen = new Map<string, { id: string; channel: string }>(); // best-effort duplicate guard per server instance
 const MAX_BODY = 16_000;
+const RATE_WINDOW_MS = 10 * 60_000;
+const RATE_MAX = 5;
+
+// Best-effort, per-instance guards. On serverless hosts these reset between instances;
+// the durable store's unique idempotency key is the real duplicate guard.
+const seen = new Map<string, { id: string; channel: string }>();
+const hits = new Map<string, number[]>();
+
+function clientIp(request: Request) {
+  return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "unknown";
+}
+
+function sameOrigin(request: Request) {
+  const origin = request.headers.get("origin");
+  if (!origin) return true; // non-browser clients; browsers always send Origin on cross-site POSTs
+  const allowed = (process.env.RESERVATION_ALLOWED_ORIGINS ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+  try {
+    const o = new URL(origin);
+    const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host");
+    return o.host === host || allowed.includes(o.origin);
+  } catch {
+    return false;
+  }
+}
+
+function rateLimited(ip: string) {
+  const now = Date.now();
+  const recent = (hits.get(ip) ?? []).filter((t) => now - t < RATE_WINDOW_MS);
+  recent.push(now);
+  hits.set(ip, recent);
+  return recent.length > RATE_MAX;
+}
 
 export async function POST(request: Request) {
+  if (!sameOrigin(request)) return Response.json({ ok: false, error: "forbidden" }, { status: 403 });
+  if (!(request.headers.get("content-type") ?? "").includes("application/json")) {
+    return Response.json({ ok: false, error: "unsupported_media_type" }, { status: 415 });
+  }
+  if (rateLimited(clientIp(request))) {
+    return Response.json({ ok: false, error: "rate_limited" }, { status: 429, headers: { "retry-after": "600" } });
+  }
+
   const raw = await request.text();
   if (raw.length > MAX_BODY) return Response.json({ ok: false, error: "too_large" }, { status: 413 });
 
@@ -54,46 +86,16 @@ export async function POST(request: Request) {
     seats: (data.seats ?? "").trim(),
     message: (data.message ?? "").trim(),
     consent: true,
+    consentText: "May store these details and contact me by email about this request.",
     source: (data.source ?? "").slice(0, 100),
     idempotencyKey: key,
     paymentTaken: false,
   };
 
-  const webhook = process.env.RESERVATION_WEBHOOK_URL;
-  let channel: string;
-
-  if (webhook) {
-    try {
-      const res = await fetch(webhook, {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          ...(process.env.RESERVATION_WEBHOOK_SECRET ? { authorization: `Bearer ${process.env.RESERVATION_WEBHOOK_SECRET}` } : {}),
-        },
-        body: JSON.stringify(record),
-        signal: AbortSignal.timeout(8000),
-      });
-      if (!res.ok) throw new Error(`Webhook responded ${res.status}`);
-      channel = "webhook";
-    } catch (err) {
-      console.error("[reservations] delivery failed", record.id, err);
-      return Response.json({ ok: false, error: "delivery_failed" }, { status: 502 });
-    }
-  } else if (process.env.NODE_ENV !== "production" || process.env.RESERVATION_FILE_STORE === "1") {
-    try {
-      const dir = path.join(process.cwd(), ".data");
-      await mkdir(dir, { recursive: true });
-      await appendFile(path.join(dir, "reservations.jsonl"), JSON.stringify(record) + "\n", "utf8");
-      channel = "file";
-    } catch (err) {
-      console.error("[reservations] file store failed", record.id, err);
-      return Response.json({ ok: false, error: "delivery_failed" }, { status: 502 });
-    }
-  } else {
-    console.error("[reservations] no lead destination configured; lead not stored", record.email);
-    return Response.json({ ok: false, error: "not_configured" }, { status: 503 });
+  const result = await deliverLead(record);
+  if (!result.ok) {
+    return Response.json({ ok: false, error: result.reason }, { status: result.reason === "not_configured" ? 503 : 502 });
   }
-
-  seen.set(key, { id: record.id, channel });
-  return Response.json({ ok: true, id: record.id, channel }, { status: 201 });
+  seen.set(key, { id: record.id, channel: result.channel });
+  return Response.json({ ok: true, id: record.id, channel: result.channel }, { status: 201 });
 }

@@ -4,12 +4,13 @@ import { useId, useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { clsx } from "clsx";
 import { Plus } from "lucide-react";
-import { CONSUMER, PLANS, PRICING_COPY, STARTING_PRICE, money } from "@/config/brand";
+import { CONSUMER, PRICING_COPY, STARTING_PRICE, money } from "@/config/brand";
+import { TIERS } from "@/config/charter";
 import { Container, Display, Eyebrow, Reveal } from "./primitives";
 
 export type FaqItem = { q: string; a: ReactNode };
 
-const planSummary = PLANS.map((p) => `${p.name} ${money(p.monthlyPrice)}/month (${p.monthlySends.toLocaleString("en-US")} sends)`).join(", ");
+const planSummary = TIERS.map((t) => (t.standard ? `${t.name} ${money(t.standard.amount)}/${t.standard.cadence}` : `${t.name} custom`)).join(", ");
 
 export const FAQS: Record<string, FaqItem> = {
   included: {
@@ -17,7 +18,7 @@ export const FAQS: Record<string, FaqItem> = {
     a: (
       <>
         Every plan includes the digital card collection, birthday scheduling and automation, CSV import, and your logo and signature
-        on each card. Plans differ by monthly card sends and features: {planSummary}. {PRICING_COPY.includes}
+        on each card. Plans differ by contacts, seats and features: {planSummary}, with Founding Charter rates for early members (see Pricing). {PRICING_COPY.includes}
       </>
     ),
   },

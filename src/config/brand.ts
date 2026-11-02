@@ -2,12 +2,16 @@
  * Central, editable product configuration.
  * Brand name, pricing and plan limits all live here so they can change in one place.
  * All prices are provisional prototype values, not commercial commitments.
+ *
+ * NOTE: `PLANS` below are the product-preview plans used by /app and /onboarding. Public business pricing
+ * comes from `TIERS` in src/config/charter.ts. See docs/PRICING_ALIGNMENT.md.
  */
+import { TIERS } from "./charter";
 
 export const BRAND = {
   name: "Daybright",
   tagline: "Birthday cards and gifts, thoughtfully on time.",
-  supportEmail: "hello@daybright.example",
+  supportEmail: "hello@daybright.store" // provisional; same as SALES_EMAIL, verify before launch,
 } as const;
 
 export type PlanId = "starter" | "growth" | "scale";
@@ -102,7 +106,8 @@ export const PLANS: Plan[] = [
   },
 ];
 
-export const STARTING_PRICE = Math.min(...PLANS.map((p) => p.monthlyPrice));
+/** Lowest standard monthly business price, from the Founding Charter tiers (src/config/charter.ts). */
+export const STARTING_PRICE = Math.min(...TIERS.filter((t) => t.standard?.cadence === "month").map((t) => t.standard!.amount));
 
 export const getPlan = (id: PlanId) => PLANS.find((p) => p.id === id) ?? PLANS[0];
 

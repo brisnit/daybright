@@ -34,13 +34,18 @@ Basis: as of this change, the codebase is a front-end product prototype. It has 
 | Gifting wallet terms | Shown as **Proposed terms** with a "not active, no funds held" note | Custody, money-transmission, payment and fulfillment models are unverified. |
 
 ## Items kept as supplied (confirm before launch)
-- "Limited to 15 Founding Agencies & Practices". This is a scarcity commitment; the business must honor it.
-- Charter and standard prices: Solo $199/yr vs $39/mo ($468/yr), save 57%; Agency $599/yr vs $149/mo ($1,788/yr), save 66% (66.5% rounded down); Sponsor $349/mo vs $499/mo, save 30%. Savings are computed in code from `src/config/charter.ts`.
-- Feature quotas (500/2,500 contacts, 100/500 SMS, 5 seats, 25 sponsored partners, "unlimited automated email cards"). "Unlimited" may need a fair-use policy.
-- `SALES_EMAIL = hello@daybright.store`, used as the reservation fallback. **Verify this mailbox exists.**
-- Third-party product names appear as text monograms, not logos, with a trademark notice. Using official logos requires each owner's brand-guideline approval.
+- **Seat limit:** "Limited to 15 Founding Agencies & Practices" is kept. It's configurable via `CHARTER.seats` in `src/config/charter.ts`, and every mention on the site, in metadata and in the modal reads from it. The business must honor it.
+- **Prices:**
+  - Solo: $199/yr charter vs $39/mo ($468/yr), save 57%.
+  - Agency: $599/yr vs $149/mo ($1,788/yr), save 66% (66.5% rounded down).
+  - Sponsor: $349/mo vs $499/mo, save 30%.
+  - Savings are computed from config, not typed in.
+- **Feature quotas:** contacts, seats, SMS, sponsored partners and "unlimited". They live in `QUOTAS` (`confirmed: false`), and while unconfirmed each quota feature shows "Proposed limit" with a note that limits are subject to confirmation. "Unlimited" may need a fair-use policy.
+- **Sales email:** `hello@daybright.store` (`SALES_EMAIL`, with `SALES_EMAIL_VERIFIED = false`) is provisional and must be verified before launch. It's used as the reservation fallback, in the footer and FAQ, and on the privacy page.
+- **CRM tiles:** text-based by decision. Official logos would require each owner's brand-guideline approval.
 
 ## Other open decisions
-- The product preview (`/app`, `/onboarding`) still uses the prototype plans (Starter/Growth/Scale at $39/$79/$149, card-send limits). These conflict with the new tiers. Decide whether to re-plan the product to match.
+- The product preview (`/app`, `/onboarding`) still uses the prototype plans. See `docs/PRICING_ALIGNMENT.md` for the audit and proposal.
 - The previous consumer homepage moved to `/personal`; consumer flows (`/cards`, `/studio`, `/send`, `/gifts`) are unchanged.
-- Privacy: the reservation form has a consent checkbox and a short disclosure. Link a privacy policy once one exists.
+- Privacy: a draft policy is at `/privacy` (noindex) and linked from the form. See `docs/PRIVACY_REVIEW.md`.
+- Lead capture: see `docs/LEAD_CAPTURE.md` for the production recommendation.
