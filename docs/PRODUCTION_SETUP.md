@@ -16,7 +16,7 @@ Nothing here has been applied to **Production** yet. Preview (branch `b2b-charte
 Values are never committed. `.env*` and `.vercel` are gitignored.
 
 ## 2. Make `hello@daybright.store` receive email (requires your action)
-**Current state:** `daybright.store` has **no MX records** (DNS is at Spaceship), so mail to this address bounces. The site hides the email fallback until it's verified.
+**Status: done (2026-11-02).** ImprovMX forwards `hello@daybright.store` to the owner's inbox. The MX and SPF records below are live at Spaceship, a real test message was delivered, and `SALES_EMAIL_VERIFIED = true` on this branch. It's inbound only: sending *as* hello@ still needs Option B or ImprovMX's paid SMTP. The steps are kept for reference.
 
 **Option A: free forwarding with ImprovMX (simplest).** Forwards to an inbox you already use.
 1. At https://improvmx.com, sign up and add the domain `daybright.store`. Create the alias `hello` and set the forwarding address to your inbox.

@@ -87,7 +87,8 @@ export function validateLead(d: Partial<LeadSubmission>): FieldErrors {
   return e;
 }
 
-export function emailFallbackHref(to: string, d: Partial<LeadSubmission>, tierLabel: string) {
+/** Subject and body for the manual email fallback; the visitor sends it themselves. */
+export function emailFallbackText(d: Partial<LeadSubmission>, tierLabel: string) {
   const subject = d.kind === "inquiry" ? `${tierLabel} inquiry` : `Founding Charter reservation: ${tierLabel}`;
   const body = [
     `Name: ${d.fullName ?? ""}`,
@@ -102,5 +103,10 @@ export function emailFallbackHref(to: string, d: Partial<LeadSubmission>, tierLa
   ]
     .filter(Boolean)
     .join("\n");
+  return { subject, body };
+}
+
+export function emailFallbackHref(to: string, d: Partial<LeadSubmission>, tierLabel: string) {
+  const { subject, body } = emailFallbackText(d, tierLabel);
   return `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }

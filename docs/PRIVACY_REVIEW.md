@@ -26,5 +26,5 @@ The content now reflects what is actually implemented: Vercel hosting, Neon data
 7. Analytics and cookies: if a tag manager or analytics vendor is added, update the policy and assess cookie-consent or opt-out requirements.
 8. Children: confirm the age threshold (draft says under 16).
 9. Client information: the form and policy tell visitors not to submit client data. Confirm this wording is enough given GLBA (financial) and HIPAA-adjacent (insurance) audiences.
-10. Contact mailbox: `hello@daybright.store` must be verified and monitored before the policy is published.
+10. Contact mailbox: `hello@daybright.store` receives mail (verified 2026-11-02, ImprovMX forwarding). Still to do: name who monitors it and how quickly requests are answered. Also note that ImprovMX handles forwarded mail as a service provider.
 11. Relationship to a future customer privacy notice, terms of service and DPA for the product itself.

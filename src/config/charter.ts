@@ -24,10 +24,12 @@ export const AVAILABILITY: Record<Availability, { label: string; description: st
 
 /**
  * Contact channel for reservations and the fallback when submission fails.
- * PROVISIONAL: the mailbox must be verified (send + receive) before launch.
+ * Receives mail via ImprovMX forwarding (MX + SPF at Spaceship), verified with a real test message on 2026-11-02.
+ * Inbound only: replies go out from the forwarding inbox until a sending mailbox is set up.
  */
 export const SALES_EMAIL = "hello@daybright.store";
-export const SALES_EMAIL_VERIFIED = false;
+/** Shows the manual email option, but only after an online submission fails. */
+export const SALES_EMAIL_VERIFIED = true;
 
 export const CHARTER = {
   /** Founding Charter seat limit shown across the site. Change here only. */

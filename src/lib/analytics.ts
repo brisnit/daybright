@@ -10,6 +10,8 @@ export type AnalyticsEvent =
   | "reservation_modal_open"
   | "reservation_submit_success"
   | "reservation_submit_error"
+  | "reservation_fallback_email"
+  | "reservation_fallback_copy"
   | "inquiry_modal_open"
   | "inquiry_submit_success"
   | "pricing_view_toggle";

@@ -175,7 +175,7 @@ export default function PrivacyPage() {
         <a href={`mailto:${SALES_EMAIL}`} className="font-semibold text-cobalt hover:underline">
           {SALES_EMAIL}
         </a>{" "}
-        <Review>mailbox must be verified and monitored; add mailing address</Review>
+        <Review>confirm who monitors this mailbox; add mailing address</Review>
       </p>
     </article>
   );

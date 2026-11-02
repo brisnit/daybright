@@ -11,7 +11,7 @@ Reservation / inquiry modal  ──POST /api/reservations──▶  route handle
 - **Success** (201 plus a reference number) is returned **only after the INSERT commits**.
 - **Notifications** (webhook, Resend email) run after the response using `after()`. They never decide success, and failures are logged.
 - **Failures** (storage error, rate limit, misconfiguration, network) show a specific message that says nothing was saved. The form keeps the data and also saves an unsent copy in the visitor's browser (`localStorage["daybright-pending-lead"]`), so reopening the form restores it. The copy is deleted on success.
-- **Email fallback:** the link is shown only when `SALES_EMAIL_VERIFIED` is `true` in `src/config/charter.ts`.
+- **Email fallback:** shown only inside the failure message, never on the normal form or the success screen. It says plainly that nothing is sent automatically and offers "Open a pre-filled email" (mailto) and "Copy details" (for webmail users). It's controlled by `SALES_EMAIL_VERIFIED` in `src/config/charter.ts`, which is `true` since `hello@daybright.store` was verified on 2026-11-02. Emails sent this way arrive in the forwarding inbox, **not** in Neon, so log them by hand.
 
 ## Safeguards
 | Concern | Control |

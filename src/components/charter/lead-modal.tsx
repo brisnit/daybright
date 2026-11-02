@@ -3,13 +3,13 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { clsx } from "clsx";
-import { AlertCircle, CheckCircle2, Loader2, Mail } from "lucide-react";
+import { AlertCircle, Check, CheckCircle2, Copy, Loader2, Mail } from "lucide-react";
 import { Modal } from "@/components/ui/overlay";
 import { Button } from "@/components/ui/button";
 import { inputClass } from "@/components/ui/field";
 import { CHARTER, CRM_OPTIONS, SALES_EMAIL, SALES_EMAIL_VERIFIED, getTier, tierSavings, type TierId } from "@/config/charter";
 import { Turnstile, TURNSTILE_ENABLED } from "./turnstile";
-import { emailFallbackHref, validateLead, type FieldErrors, type LeadKind, type LeadSubmission } from "@/lib/reservations";
+import { emailFallbackHref, emailFallbackText, validateLead, type FieldErrors, type LeadKind, type LeadSubmission } from "@/lib/reservations";
 import { track } from "@/lib/analytics";
 
 export type LeadRequest = { kind: LeadKind; tier: TierId | null; source: string; key: string };
@@ -373,9 +373,11 @@ function LeadForm({ request, onClose }: { request: LeadRequest; onClose: () => v
                   Your details are still here and saved in this browser, so you can try again now or come back later.
                 </p>
                 {SALES_EMAIL_VERIFIED && (
-                  <a href={fallback} className="mt-2 inline-flex items-center gap-1.5 font-semibold text-cobalt hover:underline">
-                    <Mail className="size-4" aria-hidden /> Or email your {isInquiry ? "request" : "reservation"} to {SALES_EMAIL}
-                  </a>
+                  <EmailFallback
+                    href={fallback}
+                    text={emailFallbackText(data, tierLabel(data.tier as TierId))}
+                    noun={isInquiry ? "request" : "reservation"}
+                  />
                 )}
               </div>
             </div>
@@ -393,6 +395,44 @@ function LeadForm({ request, onClose }: { request: LeadRequest; onClose: () => v
         </Button>
       </div>
     </form>
+  );
+}
+
+/** Manual fallback shown only after a failed submission. Nothing is sent unless the visitor sends the email themselves. */
+function EmailFallback({ href, text, noun }: { href: string; text: { subject: string; body: string }; noun: string }) {
+  const [copied, setCopied] = useState(false);
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(`To: ${SALES_EMAIL}\nSubject: ${text.subject}\n\n${text.body}`);
+      setCopied(true);
+      track("reservation_fallback_copy");
+    } catch {
+      setCopied(false);
+    }
+  }
+  return (
+    <div className="mt-3 border-t border-coral/20 pt-3">
+      <p className="text-ink-2">
+        Prefer email? You can send your {noun} to <strong className="text-ink">{SALES_EMAIL}</strong> yourself. This doesn&rsquo;t send
+        anything automatically: we only receive it once you press Send in your email app.
+      </p>
+      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1.5">
+        <a
+          href={href}
+          onClick={() => track("reservation_fallback_email")}
+          className="inline-flex items-center gap-1.5 font-semibold text-cobalt hover:underline"
+        >
+          <Mail className="size-4" aria-hidden /> Open a pre-filled email
+        </a>
+        <button type="button" onClick={copy} className="inline-flex items-center gap-1.5 font-semibold text-cobalt hover:underline">
+          {copied ? <Check className="size-4" aria-hidden /> : <Copy className="size-4" aria-hidden />}
+          {copied ? "Details copied" : "Copy details"}
+        </button>
+      </div>
+      <span className="sr-only" aria-live="polite">
+        {copied ? `Your details were copied. Paste them into an email to ${SALES_EMAIL}.` : ""}
+      </span>
+    </div>
   );
 }
 
