@@ -21,18 +21,13 @@ State is stored in your browser (`localStorage` key `daybright-demo`). Use **Res
 
 ## Founding Charter reservations (lead capture)
 
-The B2B homepage and `/pricing` open a reservation / inquiry modal that posts to `POST /api/reservations`
-(contract documented in `src/lib/reservations.ts`). Delivery:
+The B2B homepage and `/pricing` open a reservation / inquiry modal that posts to `POST /api/reservations`.
+Leads are stored in Neon Postgres (`DATABASE_URL`, provisioned through the Vercel Marketplace). Success is shown only
+after the row is committed. Design and safeguards: `docs/LEAD_CAPTURE.md`. Environment variables, the mailbox and
+launch steps: `docs/PRODUCTION_SETUP.md`.
 
-| Environment variable | Effect |
-| --- | --- |
-| `RESERVATION_WEBHOOK_URL` | Each valid lead is POSTed here as JSON. Success is shown only on a 2xx response. |
-| `RESERVATION_WEBHOOK_SECRET` | Optional. Sent as `Authorization: Bearer <secret>`. |
-| `RESERVATION_FILE_STORE=1` | Allows the local file fallback (`.data/reservations.jsonl`) in production. Not suitable for serverless hosts. |
-
-In development, leads are appended to `.data/reservations.jsonl` (gitignored). In production with no destination configured,
-the endpoint returns `503 not_configured`; the modal then shows an error and a pre-filled email fallback, never a success message.
-No payment is collected.
+Local development: `vercel env pull .env.local`, then `npm run dev`. Without `DATABASE_URL`, development falls back to
+`.data/reservations.jsonl`. Export leads with `npm run leads:export > leads.csv` (contains personal data; don't commit).
 
 Analytics events (`cta_click`, `sample_demo_open`, `reservation_modal_open`, `reservation_submit_success`, …) are pushed to
 `window.dataLayer` and dispatched as a `daybright:analytics` DOM event (`src/lib/analytics.ts`). No vendor is installed.

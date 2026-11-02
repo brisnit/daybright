@@ -6,9 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "leads:export": "node --env-file=.env.local scripts/leads-export.mjs"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.2.0",
     "clsx": "^2.1.1",
     "framer-motion": "^14.3.0",
     "lucide-react": "^1.57.0",

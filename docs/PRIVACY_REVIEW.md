@@ -4,10 +4,15 @@ Draft: `/privacy` (`src/app/(site)/privacy/page.tsx`). It's set to `noindex` whi
 
 **Scope:** the marketing site, the Founding Charter reservation form and the Sponsor/Enterprise inquiry forms. It doesn't cover the product's customer and client data, which will need its own terms and DPA.
 
+## Status
+The content now reflects what is actually implemented: Vercel hosting, Neon database storage in US East, a keyed IP hash for abuse limits, a browser-side copy of unsent requests, and optional Turnstile and notification email. It stays `DRAFT = true` (noindex, with highlighted flags) until counsel signs off. Then set `DRAFT = false` in `src/app/(site)/privacy/page.tsx`.
+
 ## What the form actually collects (as implemented)
 - **Fields:** name; title (optional); firm; website (optional); work email; CRM; tier; team size and note (inquiry only).
 - **Consent:** a boolean plus the consent wording, the received-at timestamp, the source CTA and an idempotency key.
-- **Not stored with the lead:** IP and user agent. The IP is used briefly in memory for rate limiting. The hosting provider's server logs will still capture IPs.
+- **IP address:** not stored. A keyed one-way hash (HMAC-SHA256 with `LEAD_IP_HASH_SECRET`, truncated) is stored with the lead for abuse limits. Counsel should confirm whether this is treated as personal data; the policy discloses it either way. Vercel's request logs still capture IPs.
+- **Not stored:** user agent, form-fill timing (used only as a bot check).
+- **Browser:** an unsent request copy in localStorage, removed on success.
 - **Browser storage:** no cookies set by the app. The product preview uses localStorage for demo data. Analytics events go to `window.dataLayer` only, with no vendor installed.
 - **Fonts:** self-hosted via `next/font`, so there are no runtime calls to Google Fonts.
 

@@ -5,10 +5,14 @@ import { CRM_OPTIONS, type TierId } from "@/config/charter";
  * Shared by the client form and POST /api/reservations so both validate identically.
  *
  * Request:  POST /api/reservations  (application/json)  body: LeadSubmission
- * Response: 201 { ok: true, id, channel }                 lead persisted or delivered
+ * Response: 201 { ok: true, id, duplicate? }              lead stored (duplicates return the original id)
+ *           400 / 413 / 415                               malformed request
+ *           403 { ok: false, error: "forbidden" }         cross-site request
+ *           403 { ok: false, error: "verification_failed" } spam check failed (Turnstile, when enabled)
  *           422 { ok: false, error: "invalid", fields }  validation errors
- *           502 { ok: false, error: "delivery_failed" }   downstream webhook rejected it
- *           503 { ok: false, error: "not_configured" }    no lead destination configured
+ *           429 { ok: false, error: "rate_limited" }      too many submissions
+ *           502 { ok: false, error: "delivery_failed" }   storage failed; nothing was saved
+ *           503 { ok: false, error: "not_configured" }    no lead store configured
  * A reservation is NOT a purchase: no payment is requested or taken.
  */
 
@@ -32,6 +36,10 @@ export type LeadSubmission = {
   /** Honeypot; must stay empty. */
   company_url?: string;
   source?: string;
+  /** Milliseconds the form was open before submitting (bot time-trap). */
+  elapsedMs?: number;
+  /** Cloudflare Turnstile token, when Turnstile is enabled. */
+  turnstileToken?: string;
 };
 
 export type FieldErrors = Partial<Record<keyof LeadSubmission, string>>;

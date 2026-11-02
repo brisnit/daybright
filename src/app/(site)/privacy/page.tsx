@@ -65,23 +65,33 @@ export default function PrivacyPage() {
         <li>Your agency or firm name and, if you provide it, its website</li>
         <li>Your work email address</li>
         <li>The CRM you use, the tier or account type you selected and, for inquiries, approximate team size and any note you add</li>
-        <li>A record that you agreed to be contacted, with the date and time</li>
+        <li>A record that you agreed to be contacted, the wording you agreed to, and the date and time</li>
+        <li>Which button you used to open the form (for example &ldquo;pricing&rdquo; or &ldquo;hero&rdquo;)</li>
       </ul>
       <p>
         Please don&rsquo;t include information about your own clients (for example names, account details, policy numbers or health
         information) in these forms. We don&rsquo;t need it to respond, and the forms aren&rsquo;t designed to receive it.
       </p>
       <p>
-        <strong className="text-ink">Information collected automatically.</strong> Like most websites, our hosting provider records
-        standard server logs, such as IP address, browser type, the pages requested and timestamps. To prevent abuse, our reservation
-        endpoint briefly uses your IP address to limit repeated submissions; it is not stored with your reservation.{" "}
-        <Review>confirm hosting provider, log contents and log retention</Review>
+        <strong className="text-ink">Information collected automatically.</strong> Our hosting provider, Vercel, records standard
+        request logs, such as IP address, browser type, the pages requested and timestamps.{" "}
+        <Review>confirm Vercel log contents and retention for our plan</Review> To prevent spam and repeated submissions, we store a
+        one-way, keyed hash of your IP address with your request. We don&rsquo;t store the IP address itself, and the hash is used only
+        to limit how many requests come from the same connection. The form also measures how long it was open before you submitted it,
+        to filter out automated submissions; that timing isn&rsquo;t stored.
       </p>
       <p>
-        <strong className="text-ink">Cookies and browser storage.</strong> We don&rsquo;t use advertising cookies. The interactive product
-        preview stores sample data only in your own browser&rsquo;s local storage, which you can clear at any time. We do not currently
-        use a third-party analytics service; if we add one, we&rsquo;ll update this policy first.{" "}
+        <strong className="text-ink">Cookies and browser storage.</strong> We don&rsquo;t use advertising cookies. If a reservation
+        can&rsquo;t be sent (for example, if your connection drops), the form keeps a copy of what you typed in your own browser&rsquo;s
+        local storage so you can try again; it&rsquo;s deleted when the request goes through, and you can clear it at any time. The
+        interactive product preview also stores sample data only in your browser. We do not currently use a third-party analytics
+        service; if we add one, we&rsquo;ll update this policy first.{" "}
         <Review>update if an analytics or tag manager vendor is installed; assess cookie-consent requirements</Review>
+      </p>
+      <p>
+        <strong className="text-ink">Bot protection.</strong> If we turn on Cloudflare Turnstile to block automated submissions,
+        Cloudflare will process limited technical information from your browser to run that check.{" "}
+        <Review>keep this paragraph only if Turnstile is enabled; link Cloudflare&rsquo;s Turnstile privacy terms</Review>
       </p>
 
       <H2 id="use">How we use information</H2>
@@ -107,8 +117,10 @@ export default function PrivacyPage() {
       <p>We share information only as needed to operate the program:</p>
       <ul>
         <li>
-          With service providers who host the site, store reservation records and deliver email on our behalf, under contracts that limit
-          their use of the information <Review>list providers once chosen, e.g. hosting, database, email</Review>
+          With service providers that operate the site on our behalf, under terms that limit their use of the information:{" "}
+          <strong className="text-ink">Vercel</strong> (website hosting) and <strong className="text-ink">Neon</strong> (the database
+          that stores reservation records, located in the United States), plus an email delivery provider if we enable reservation
+          notification emails. <Review>confirm each provider&rsquo;s data processing terms are accepted; name the email provider if enabled</Review>
         </li>
         <li>If required by law, or to protect the rights, safety and security of {BRAND.name}, our users or others</li>
         <li>As part of a merger, acquisition or sale of assets, subject to this policy</li>
@@ -133,9 +145,10 @@ export default function PrivacyPage() {
 
       <H2 id="security">Security</H2>
       <p>
-        We use reasonable administrative, technical and physical safeguards, including encrypted connections (HTTPS) for form
-        submissions and access controls on stored records. No method of transmission or storage is completely secure.{" "}
-        <Review>confirm encryption at rest and access controls for the chosen lead store</Review>
+        We use reasonable administrative, technical and physical safeguards. Form submissions are sent over encrypted connections
+        (HTTPS), database credentials are kept in our hosting provider&rsquo;s encrypted settings rather than in our code, and access to
+        reservation records is limited to the people who need it to follow up. No method of transmission or storage is completely
+        secure. <Review>confirm Neon&rsquo;s encryption-at-rest statement before adding it, and document who has database access</Review>
       </p>
 
       <H2 id="children">Children</H2>
@@ -146,8 +159,8 @@ export default function PrivacyPage() {
 
       <H2 id="location">Where information is processed</H2>
       <p>
-        We are based in the United States, and information is processed and stored in the United States.{" "}
-        <Review>confirm data location of hosting and lead-storage providers</Review>
+        We are based in the United States. Reservation records are stored in a database in the eastern United States, and the site is
+        served by Vercel&rsquo;s global network. <Review>confirm Vercel function region and any international transfer language</Review>
       </p>
 
       <H2 id="changes">Changes to this policy</H2>

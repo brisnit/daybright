@@ -1,13 +1,14 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { clsx } from "clsx";
 import { AlertCircle, CheckCircle2, Loader2, Mail } from "lucide-react";
 import { Modal } from "@/components/ui/overlay";
 import { Button } from "@/components/ui/button";
 import { inputClass } from "@/components/ui/field";
-import { CHARTER, CRM_OPTIONS, SALES_EMAIL, getTier, tierSavings, type TierId } from "@/config/charter";
+import { CHARTER, CRM_OPTIONS, SALES_EMAIL, SALES_EMAIL_VERIFIED, getTier, tierSavings, type TierId } from "@/config/charter";
+import { Turnstile, TURNSTILE_ENABLED } from "./turnstile";
 import { emailFallbackHref, validateLead, type FieldErrors, type LeadKind, type LeadSubmission } from "@/lib/reservations";
 import { track } from "@/lib/analytics";
 
@@ -31,6 +32,34 @@ export function LeadModal({ request, onClose }: { request: LeadRequest | null; o
     </Modal>
   );
 }
+
+/** Unsent requests are kept in this browser so a failed submission is never lost; cleared on success. */
+const PENDING_KEY = "daybright-pending-lead";
+type Pending = Partial<LeadSubmission>;
+function readPending(kind: LeadKind): Pending | null {
+  try {
+    const p = JSON.parse(localStorage.getItem(PENDING_KEY) ?? "null") as Pending | null;
+    return p && p.kind === kind ? p : null;
+  } catch {
+    return null;
+  }
+}
+function writePending(p: Pending | null) {
+  try {
+    if (p) localStorage.setItem(PENDING_KEY, JSON.stringify({ ...p, company_url: "", turnstileToken: undefined }));
+    else localStorage.removeItem(PENDING_KEY);
+  } catch {
+    /* storage unavailable: the form keeps the data in memory */
+  }
+}
+
+const ERROR_COPY: Record<string, string> = {
+  rate_limited: "You've sent several requests in a short time. Please wait about ten minutes and try again.",
+  verification_failed: "We couldn't confirm the request came from a person. Please complete the check and try again.",
+  forbidden: "This request was blocked for security reasons. Please reload the page and try again.",
+  not_configured: "Online reservations aren't available right now, so nothing was saved.",
+  delivery_failed: "We couldn't save your request just now, so nothing was saved.",
+};
 
 function LeadForm({ request, onClose }: { request: LeadRequest; onClose: () => void }) {
   const isInquiry = request.kind === "inquiry";
@@ -56,6 +85,20 @@ function LeadForm({ request, onClose }: { request: LeadRequest; onClose: () => v
   const [submitted, setSubmitted] = useState(false);
   const [serverErrors, setServerErrors] = useState<FieldErrors>({});
   const [status, setStatus] = useState<Status>({ state: "idle" });
+  const [restored, setRestored] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | undefined>();
+  const openedAt = useRef(0);
+
+  // Start the bot time-trap clock, and restore an unsent request from a previous failed attempt.
+  useEffect(() => {
+    openedAt.current = performance.now();
+    const pending = readPending(request.kind);
+    if (pending) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time restore from browser storage
+      setData((d) => ({ ...d, ...pending, tier: request.tier ?? pending.tier ?? d.tier, source: request.source, consent: false }));
+      setRestored(true);
+    }
+  }, [request]);
 
   const errors = { ...validateLead(data), ...serverErrors };
   delete errors.idempotencyKey;
@@ -86,10 +129,11 @@ function LeadForm({ request, onClose }: { request: LeadRequest; onClose: () => v
       const res = await fetch("/api/reservations", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, elapsedMs: Math.round(performance.now() - openedAt.current), turnstileToken }),
       });
       const body = await res.json().catch(() => ({}));
       if (res.status === 201 && body.ok && body.id) {
+        writePending(null);
         setStatus({ state: "success", id: body.id });
         track(isInquiry ? "inquiry_submit_success" : "reservation_submit_success", { tier: data.tier, crm: data.crm, source: request.source });
         return;
@@ -99,14 +143,12 @@ function LeadForm({ request, onClose }: { request: LeadRequest; onClose: () => v
         setStatus({ state: "idle" });
         return;
       }
-      const reason =
-        body.error === "not_configured"
-          ? "Online reservations aren't connected yet, so we couldn't save your request."
-          : "We couldn't save your request just now.";
-      setStatus({ state: "error", reason });
+      writePending(data);
+      setStatus({ state: "error", reason: ERROR_COPY[body.error as string] ?? "We couldn't save your request just now, so nothing was saved." });
       track("reservation_submit_error", { code: body.error ?? res.status, tier: data.tier });
     } catch {
-      setStatus({ state: "error", reason: "We couldn't reach our server. Check your connection and try again." });
+      writePending(data);
+      setStatus({ state: "error", reason: "We couldn't reach our server, so nothing was saved. Check your connection and try again." });
       track("reservation_submit_error", { code: "network", tier: data.tier });
     }
   }
@@ -303,6 +345,18 @@ function LeadForm({ request, onClose }: { request: LeadRequest; onClose: () => v
         </div>
       </div>
 
+      {TURNSTILE_ENABLED && (
+        <div className="px-6 pb-4 sm:px-8">
+          <Turnstile onToken={setTurnstileToken} />
+        </div>
+      )}
+
+      {restored && status.state === "idle" && (
+        <p className="mx-6 mb-4 rounded-xl bg-cobalt-soft px-4 py-3 text-[13px] text-cobalt-deep sm:mx-8" role="status">
+          We restored the details from your last attempt, which didn&rsquo;t go through. Please check them and confirm consent again.
+        </p>
+      )}
+
       <AnimatePresence>
         {status.state === "error" && (
           <motion.div
@@ -315,10 +369,14 @@ function LeadForm({ request, onClose }: { request: LeadRequest; onClose: () => v
               <AlertCircle className="mt-0.5 size-5 shrink-0 text-coral-deep" aria-hidden />
               <div>
                 <p className="font-semibold">{status.reason}</p>
-                <p className="mt-1 text-ink-2">Your details are still here. Try again, or send them to us by email so nothing is lost.</p>
-                <a href={fallback} className="mt-2 inline-flex items-center gap-1.5 font-semibold text-cobalt hover:underline">
-                  <Mail className="size-4" aria-hidden /> Email your {isInquiry ? "request" : "reservation"} to {SALES_EMAIL}
-                </a>
+                <p className="mt-1 text-ink-2">
+                  Your details are still here and saved in this browser, so you can try again now or come back later.
+                </p>
+                {SALES_EMAIL_VERIFIED && (
+                  <a href={fallback} className="mt-2 inline-flex items-center gap-1.5 font-semibold text-cobalt hover:underline">
+                    <Mail className="size-4" aria-hidden /> Or email your {isInquiry ? "request" : "reservation"} to {SALES_EMAIL}
+                  </a>
+                )}
               </div>
             </div>
           </motion.div>
