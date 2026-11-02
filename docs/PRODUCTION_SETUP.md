@@ -5,7 +5,7 @@ Nothing here has been applied to **Production** yet. Preview (branch `b2b-charte
 ## 1. Environment variables (Vercel project `daybright`)
 | Variable | Purpose | Development | Preview | Production |
 | --- | --- | --- | --- | --- |
-| `DATABASE_URL` (+ other `PG*`/`POSTGRES_*` vars) | Neon connection; required for lead storage | ✅ set by Neon integration | ✅ set by Neon integration | ❌ connect at launch (step 3) |
+| `DATABASE_URL` (+ other `PG*`/`POSTGRES_*` vars) | Neon connection; required for lead storage | ✅ `daybright-leads` | ✅ `daybright-leads` (shared with Development) | ❌ separate `daybright-leads-prod` at launch (step 3.1) |
 | `LEAD_IP_HASH_SECRET` | Secret for hashing IPs in abuse limits. Generate fresh for Production | ✅ | ✅ (this branch) | ❌ add at launch |
 | `LEAD_TEST_FAULTS` | Enables the storage-failure test header. **Never set in Production** | – | ✅ `1` (this branch only) | must stay unset |
 | `RESEND_API_KEY`, `LEAD_NOTIFY_FROM`, `LEAD_NOTIFY_TO` | Optional email alert for each new lead | – | optional | recommended |
@@ -33,11 +33,12 @@ Values are never committed. `.env*` and `.vercel` are gitignored.
 **Option B: a real mailbox** (Spaceship Spacemail, Google Workspace or Microsoft 365) if you want to send *as* hello@. Follow that provider's setup wizard. It will give you the MX and SPF records to add in the same Spaceship DNS screen. Use only one provider's MX records.
 
 ## 3. Launch steps (after your approval)
-1. Connect the Neon resource to Production:
+1. Give Production **its own database**. Preview and Development share `daybright-leads`, so test submissions must never mix with real leads:
    ```bash
-   vercel integration resource connect daybright-leads daybright -e production
+   vercel integration add neon --plan free_v3 -m region=iad1 -m auth=false -n daybright-leads-prod -e production --no-env-pull
    ```
-   This adds the `DATABASE_URL` set to Production. Production uses the main Neon branch; Preview data stays separate.
+   This sets `DATABASE_URL` for Production only. The `reservations` table is created automatically on the first submission.
+   Installing or connecting an integration can trigger an automatic redeploy of the current Production commit. That happened once during setup (same `main` commit, no change to the live site).
 2. Add a fresh secret: `openssl rand -hex 32 | vercel env add LEAD_IP_HASH_SECRET production --sensitive`.
 3. Optional (recommended) lead alert email with Resend:
    1. Create an account at https://resend.com and add the domain `daybright.store`.
@@ -50,7 +51,7 @@ Values are never committed. `.env*` and `.vercel` are gitignored.
 | Service | Role | Account | Plan |
 | --- | --- | --- | --- |
 | Vercel | Hosting, environment secrets | britt-midgettes-projects | existing |
-| Neon (via Vercel Marketplace) | Lead database `daybright-leads`, region `iad1` (US East) | provisioned through Vercel | Free |
+| Neon (via Vercel Marketplace) | Lead databases: `daybright-leads` (Preview/Dev, created) and `daybright-leads-prod` (Production, at launch); region `iad1` (US East) | provisioned through Vercel | Free |
 | ImprovMX or another mail provider | `hello@daybright.store` inbound | to create | Free (ImprovMX) |
 | Resend | Optional lead alert emails | to create | Free tier available |
 | Cloudflare Turnstile | Optional bot check | only if needed | Free |
