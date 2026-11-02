@@ -11,6 +11,8 @@ The content now reflects what is actually implemented: Vercel hosting, Neon data
 - **Fields:** name; title (optional); firm; website (optional); work email; CRM; tier; team size and note (inquiry only).
 - **Consent:** a boolean plus the exact consent wording shown, the received-at timestamp, the source CTA and an idempotency key.
 - **Internal follow-up:** a status (`new`, `contacted`, `accepted`, `waitlisted`, `declined`, `withdrawn`), an optional internal note and the time it changed. These are set by the team, never by the form, and the policy discloses them.
+- **Lead alert emails (when Resend is enabled):** reference, time, tier, name, firm and email only, sent to the operator inbox. Notes and other fields are excluded.
+- **Who can access leads:** the account owner (Neon console via Vercel) and named operators with least-privilege database roles. They can read and update status only; they can't edit contact details or delete. See `LEAD_OPERATIONS.md`.
 - **Email to hello@:** forwarded by ImprovMX to a Gmail inbox. Messages sent through the manual email fallback land there, not in the database.
 - **IP address:** not stored. A keyed one-way hash (HMAC-SHA256 with `LEAD_IP_HASH_SECRET`, truncated) is stored with the lead for abuse limits. Counsel should confirm whether this is treated as personal data; the policy discloses it either way. Vercel's request logs still capture IPs.
 - **Not stored:** user agent, form-fill timing (used only as a bot check).
@@ -30,3 +32,4 @@ The content now reflects what is actually implemented: Vercel hosting, Neon data
 9. Client information: the form and policy tell visitors not to submit client data. Confirm this wording is enough given GLBA (financial) and HIPAA-adjacent (insurance) audiences.
 10. Contact mailbox: `hello@daybright.store` receives mail (verified 2026-11-02, ImprovMX forwarding). Still to do: name who monitors it and how quickly requests are answered. Also note that ImprovMX handles forwarded mail as a service provider.
 11. Relationship to a future customer privacy notice, terms of service and DPA for the product itself.
+12. Development vendor: Artifact Digital is the development vendor, not the owner or operator. Confirm the contract terms that cover vendor access to lead data (confidentiality, data processing, return or deletion at the end of the engagement). Confirm whether the policy needs to mention vendors who may access data for development and support.

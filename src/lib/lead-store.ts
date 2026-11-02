@@ -3,6 +3,7 @@ import { createHmac } from "node:crypto";
 import { appendFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
+import { CHARTER } from "@/config/charter";
 import { migrate } from "./lead-schema.mjs";
 
 /**
@@ -51,7 +52,7 @@ function db() {
 
 /** Applies pending migrations once per server instance (also covers fresh preview branches). */
 function ensureSchema(sql: NeonQueryFunction<false, false>) {
-  schemaReady ??= migrate(sql)
+  schemaReady ??= migrate(sql, { charterSeats: CHARTER.seats })
     .then(() => undefined)
     .catch((err) => {
       schemaReady = null; // allow a retry on the next request
@@ -139,21 +140,42 @@ async function postWebhook(record: LeadRecord) {
   if (!res.ok) throw new Error(`Webhook responded ${res.status}`);
 }
 
-async function sendEmail(record: LeadRecord) {
-  const subject = `New ${record.kind === "inquiry" ? "inquiry" : "Founding Charter reservation"}: ${record.firm} (${record.tier})`;
+/**
+ * Lead alert email. Deliberately minimal: only what's needed to recognise the lead and reply. Title, website, CRM,
+ * team size and the free-text note are left out (the note could contain client information); they stay in the
+ * database. The subject carries no personal data, since it shows in notification previews.
+ */
+export function leadAlert(record: LeadRecord) {
+  const ref = record.id.slice(0, 8).toUpperCase();
+  const what = record.kind === "inquiry" ? `${TIER_NAMES[record.tier] ?? record.tier} inquiry` : "Founding Charter reservation request";
   const text = [
-    `Name: ${record.fullName}${record.title ? `, ${record.title}` : ""}`,
-    `Firm: ${record.firm}${record.website ? ` (${record.website})` : ""}`,
+    record.kind === "inquiry" ? `New ${what}.` : `New ${what} (nonbinding).`,
+    "",
+    `Reference: ${ref}`,
+    `Received: ${record.receivedAt.slice(0, 16).replace("T", " ")} UTC`,
+    record.kind === "inquiry" ? null : `Tier: ${TIER_NAMES[record.tier] ?? record.tier}`,
+    `Name: ${record.fullName}`,
+    `Firm: ${record.firm}`,
     `Email: ${record.email}`,
-    `CRM: ${record.crm}`,
-    `Tier: ${record.tier}`,
-    record.seats ? `Seats / partners: ${record.seats}` : "",
-    record.message ? `Note: ${record.message}` : "",
-    `Received: ${record.receivedAt}`,
-    `Reference: ${record.id}`,
+    "",
+    "Status: new. Other details are in the lead database; review and update the status there.",
+    process.env.LEAD_REVIEW_URL ? `Review leads: ${process.env.LEAD_REVIEW_URL}` : null,
+    "Replying to this email goes to the person who submitted the request.",
   ]
-    .filter(Boolean)
+    .filter((l) => l !== null)
     .join("\n");
+  return { subject: `New ${what} · ${ref}`, text };
+}
+
+const TIER_NAMES: Record<string, string> = {
+  solo: "Solo Founding Charter",
+  agency: "Agency Founding Charter",
+  sponsor: "Co-Marketing Sponsor",
+  enterprise: "Enterprise",
+};
+
+async function sendEmail(record: LeadRecord) {
+  const { subject, text } = leadAlert(record);
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { authorization: `Bearer ${process.env.RESEND_API_KEY}`, "content-type": "application/json" },

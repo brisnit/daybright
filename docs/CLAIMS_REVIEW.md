@@ -46,8 +46,26 @@ Basis: as of this change, the codebase is a front-end product prototype. It has 
 | `/app` pricing labelled illustrative | `PRICING_COPY.provisional` now reads "Illustrative pricing for this product preview only…". Billing, onboarding plan step and review step all carry "illustrative". A product-preview banner sits on every `/app` and `/onboarding` page. |
 | Consumer pages don't imply operation | A prototype banner sits on `/personal`, `/cards`, `/cards/[id]`, `/studio`, `/send`, `/gifts` and `/search`, and a sample-card banner on `/open`. Send confirmations read "Demo send complete… Nothing was sent". Checkout-style buttons and lock icons are removed. Gift reveal says "Sample gift / Sample code". "Made with AI. Sent on the day." is removed. `/business` (an older small-business pitch with $39/month pricing) temporarily redirects to `/`. |
 
+## Hidden pending legal review (owner decision 2026-11-02, second round)
+These are removed from every public page, but the content and implementation are kept. Each is gated by a flag in `CLAIM_FLAGS` (`src/config/charter.ts`); set the flag to `true` to restore it after counsel approves.
+| Flag | What's hidden | Where it lived |
+| --- | --- | --- |
+| `giftingTerms` | Gifting wallet and SMS top-up fees ($0 ACH markup, 3.5% card fee, $0.05/SMS) and the "How will gifting be funded?" FAQ | `GiftingTerms` on pricing, `GIFTING_FAQ` in `home.tsx`, `GIFTING_TERMS` |
+| `respaConcept` | "RESPA / marketing-compliance split tracking" (Sponsor tier) and its pricing footnote | `TIERS.sponsor.features`, pricing footnote |
+| `regulatoryArchiving` | Auto-BCC archiving for FINRA/SEC recordkeeping (hero pill naming Smarsh / Global Relay), the "Compliance Archiving (Auto-BCC)" card, the hero "Audit snapshot" visual, and the Solo "Auto-BCC compliance archiving" feature | `CAPABILITY_PILLS`, `compliance.tsx`, `hero.tsx`, `TIERS.solo.features` |
+
+**Rewritten, not gated:**
+- The compliance FAQ is now "Will Daybright make my firm's client communications compliant?" The answer is "No…", with no feature claims and no regulator names.
+- The "CRM timeline write-back" pill detail no longer mentions audit snapshots.
+- "archiving" is gone from the "What works today" answer.
+
+**Still visible, consider with counsel:**
+- The **Co-Marketing Sponsor** tier itself: loan officers, title reps and wholesalers sponsoring co-branded cards for referral partners. RESPA Section 8 review would cover this arrangement, not just the split-tracking feature.
+- "Principal-locked template mode" and "Central compliance approval queue" (Planned). These are approval workflows, not archiving claims.
+- "Built for Regulated Industries" positioning.
+
 ## Site-wide audit (2026-11-02)
-- **Coverage:** every route was rendered in a browser and scanned for banned phrases and the correct preview banner: 22 routes, all 200, all with the right banner.
+- **Coverage:** every route was rendered in a browser and scanned for banned phrases and the correct preview banner: 22 routes, all 200, all with the right banner. After the second round, the scan also fails on FINRA, SEC, RESPA, archiving, Smarsh, Global Relay, Auto-BCC, audit snapshot, 3.5%, markup, ACH, $0.05 and "gifting wallet". No route contains any of them.
 - **Remaining matches are intentional:**
   - "locked in" and "guarantee a seat" appear only inside disclaimers.
   - "$39/month" appears only on `/app/billing` as labelled illustrative preview pricing.
@@ -61,5 +79,5 @@ Basis: as of this change, the codebase is a front-end product prototype. It has 
 ## Still open
 - Legal entity name, address and effective date: pending the owner's legal meeting (2026-11-03). Nothing assumes an entity.
 - Final quotas, price-lock/renewal/refund terms and any delivery commitments: to be set before any written agreement.
-- Whether the gifting terms, RESPA concept and FINRA/SEC archiving wording stay on the site at launch: counsel review (see `PRIVACY_REVIEW.md`).
+- Gifting terms, the RESPA concept and FINRA/SEC archiving claims are hidden until counsel review. Whether the Co-Marketing Sponsor tier stays visible is the owner's call.
 - Product-preview plans vs charter tiers: `docs/PRICING_ALIGNMENT.md`.

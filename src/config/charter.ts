@@ -49,6 +49,27 @@ export const CHARTER = {
 export type TierId = "solo" | "agency" | "sponsor" | "enterprise";
 
 /**
+ * Claims hidden from the public site until evidence or legal review supports them. Content gated by a flag stays
+ * in this file (and in docs/CLAIMS_REVIEW.md) so it can be restored by flipping the flag. Owner decision 2026-11-02:
+ * gifting fee terms, the RESPA concept and FINRA/SEC archiving claims stay hidden until legal review is complete.
+ */
+export const CLAIM_FLAGS = {
+  /** MBE supplier-diversity positioning. Keep false until certification is documented. */
+  mbeCertified: false,
+  /** Proposed gifting wallet and SMS top-up fees (GIFTING_TERMS) and the gifting-funding FAQ. */
+  giftingTerms: false,
+  /** RESPA / marketing-compliance split tracking for co-marketing sponsors. */
+  respaConcept: false,
+  /** Auto-BCC archiving for FINRA/SEC recordkeeping, audit snapshots and named archive vendors. */
+  regulatoryArchiving: false,
+} as const;
+
+export type ClaimFlag = keyof typeof CLAIM_FLAGS;
+
+/** True when content gated by `flag` may be shown publicly. Ungated content is always shown. */
+export const claimVisible = (flag?: ClaimFlag) => !flag || CLAIM_FLAGS[flag];
+
+/**
  * Proposed plan quotas. Subject to confirmation: while `confirmed` is false, every quota-based feature
  * is labeled "Proposed limit" on the site.
  */
@@ -63,8 +84,11 @@ const n = (v: number) => v.toLocaleString("en-US");
 
 type Price = { amount: number; cadence: "month" | "year"; note?: string };
 
-/** `quota` marks features whose numbers are proposed and subject to confirmation. */
-export type Feature = { label: string; status: Availability; quota?: boolean };
+/**
+ * `quota` marks features whose numbers are proposed and subject to confirmation.
+ * `gate` hides the feature publicly unless that claim flag is on.
+ */
+export type Feature = { label: string; status: Availability; quota?: boolean; gate?: ClaimFlag };
 
 export type Tier = {
   id: TierId;
@@ -95,7 +119,7 @@ export const TIERS: Tier[] = [
       { label: "Unlimited automated email cards", status: "beta", quota: true },
       { label: `${n(QUOTAS.solo.smsPerMonth)} SMS/MMS deliveries per month`, status: "planned", quota: true },
       { label: "Voice-to-note AI mobile app (PWA)", status: "planned" },
-      { label: "Auto-BCC compliance archiving", status: "planned" },
+      { label: "Auto-BCC compliance archiving", status: "planned", gate: "regulatoryArchiving" },
     ],
     cta: { label: "Request a Solo Charter Seat", action: "reserve" },
   },
@@ -125,7 +149,7 @@ export const TIERS: Tier[] = [
     features: [
       { label: `Sponsor up to ${QUOTAS.sponsor.partnerAccounts} referral partner accounts`, status: "planned", quota: true },
       { label: "Dual co-branded card footers and wax seals", status: "planned" },
-      { label: "RESPA / marketing-compliance split tracking", status: "concept" },
+      { label: "RESPA / marketing-compliance split tracking", status: "concept", gate: "respaConcept" },
       { label: "Central sponsor ROI dashboard", status: "roadmap" },
     ],
     cta: { label: "Apply for Sponsor Account", action: "inquire" },
@@ -149,16 +173,20 @@ export const TIERS: Tier[] = [
 
 export const getTier = (id: TierId) => TIERS.find((t) => t.id === id)!;
 
+/** Features that may be shown publicly for a tier. */
+export const visibleFeatures = (t: Tier) => t.features.filter((f) => claimVisible(f.gate));
+
 /** Hero capability pills. Supplied wording is adapted where the capability is not yet live. */
-export const CAPABILITY_PILLS: { title: string; detail: string; status: Availability }[] = [
+export const CAPABILITY_PILLS: { title: string; detail: string; status: Availability; gate?: ClaimFlag }[] = [
   {
     title: "Auto-BCC archiving for FINRA / SEC recordkeeping workflows",
     detail: "Designed to route copies to Smarsh, Global Relay, Redtail and Wealthbox",
     status: "planned",
+    gate: "regulatoryArchiving",
   },
   {
     title: "CRM timeline write-back",
-    detail: "Timestamped PDF/HTML audit snapshots on each contact",
+    detail: "A timestamped note on each contact's CRM timeline when a card goes out",
     status: "planned",
   },
   {
@@ -191,16 +219,13 @@ export const INTEGRATIONS: Integration[] = [
 
 export const CRM_OPTIONS = ["Wealthbox", "Redtail", "GoHighLevel", "Follow Up Boss", "Clio", "AgencyZoom", "HubSpot", "Other / CSV"] as const;
 
-/** Proposed commercial terms for gifting and messaging. Concept only: not built, no funds are held or processed. */
+/**
+ * Proposed commercial terms for gifting and messaging. Concept only: not built, no funds are held or processed.
+ * Hidden publicly while `CLAIM_FLAGS.giftingTerms` is false.
+ */
 export const GIFTING_TERMS: { label: string; detail: string }[] = [
   { label: "Digital gift cards, $5–$100", detail: "From supported merchants. Merchant availability is still being confirmed." },
   { label: "$0 platform markup on ACH-funded gifting", detail: "Gift value passes through at face value." },
   { label: "3.5% processing fee on card-funded gifting", detail: "Covers card processing costs." },
   { label: "Additional SMS/MMS credits at $0.05 per send", detail: "Beyond your plan's monthly allowance." },
 ];
-
-/** Claims that require documentary evidence before they can be shown. */
-export const CLAIM_FLAGS = {
-  /** MBE supplier-diversity positioning. Keep false until certification is documented. */
-  mbeCertified: false,
-} as const;

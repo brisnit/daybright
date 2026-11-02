@@ -2,10 +2,15 @@
 
 import { clsx } from "clsx";
 import { Check } from "lucide-react";
-import { CHARTER, GIFTING_TERMS, QUOTAS, TIERS, type Tier } from "@/config/charter";
+import { CHARTER, CLAIM_FLAGS, GIFTING_TERMS, QUOTAS, TIERS, visibleFeatures, type Availability, type Tier } from "@/config/charter";
 import { Button } from "@/components/ui/button";
 import { useCharter } from "./charter-provider";
 import { StatusChip, StatusLegend } from "./status";
+
+/** Legend entries for the statuses actually shown in the matrix (gated features excluded). */
+const LEGEND = (["beta", "planned", "roadmap", "concept", "service"] as Availability[]).filter((s) =>
+  TIERS.some((t) => visibleFeatures(t).some((f) => f.status === s)),
+);
 
 const usd = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 
@@ -93,7 +98,7 @@ export function PricingMatrix({ source = "pricing", headingLevel = "h2" }: { sou
               </Button>
 
               <ul className={clsx("mt-6 space-y-3 border-t pt-5", featured ? "border-white/15" : "border-line")}>
-                {t.features.map((f) => (
+                {visibleFeatures(t).map((f) => (
                   <li key={f.label} className="flex items-start gap-2.5 text-[14px] leading-snug">
                     <Check className={clsx("mt-0.5 size-4 shrink-0", featured ? "text-[#E9D9A8]" : "text-[#8A6A2B]")} aria-hidden />
                     <span className="flex flex-1 flex-col items-start gap-1">
@@ -115,20 +120,22 @@ export function PricingMatrix({ source = "pricing", headingLevel = "h2" }: { sou
 
       <div className="mt-8 rounded-[1.5rem] bg-white/60 p-5 ring-1 ring-line sm:p-6">
         <p className="mb-3 text-[13px] font-semibold text-ink">What the labels mean</p>
-        <StatusLegend statuses={["beta", "planned", "roadmap", "concept", "service"]} />
+        <StatusLegend statuses={LEGEND} />
         <p className="mt-4 text-[12px] leading-relaxed text-ink-3">
           Prices are proposed, in US dollars, and may change before launch. {CHARTER.nonbinding} No billing is active on this site.
           Contact, seat, SMS and partner-account limits marked &ldquo;Proposed limit&rdquo; are not final. Planned and roadmap features
-          have no committed release dates, and the RESPA / marketing-compliance split-tracking concept is subject to legal review
-          before it is offered.
+          have no committed release dates.
+          {CLAIM_FLAGS.respaConcept &&
+            " The RESPA / marketing-compliance split-tracking concept is subject to legal review before it is offered."}
         </p>
       </div>
 
-      <GiftingTerms />
+      {CLAIM_FLAGS.giftingTerms && <GiftingTerms />}
     </div>
   );
 }
 
+/** Proposed gifting fees. Rendered only while CLAIM_FLAGS.giftingTerms is true (hidden pending legal review). */
 export function GiftingTerms() {
   return (
     <section aria-labelledby="gifting-title" className="linen mt-10 overflow-hidden rounded-[1.75rem] p-6 ring-1 ring-[#E7DDCC] sm:p-8">

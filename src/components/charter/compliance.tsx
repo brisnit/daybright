@@ -1,6 +1,6 @@
 import { clsx } from "clsx";
 import { Archive, CalendarClock, Users } from "lucide-react";
-import type { Availability } from "@/config/charter";
+import { claimVisible, type Availability, type ClaimFlag } from "@/config/charter";
 import { StatusChip } from "./status";
 
 type Capability = { label: string; status: Availability };
@@ -12,9 +12,11 @@ const CARDS: {
   capabilities: Capability[];
   note: string;
   visual: React.ReactNode;
+  gate?: ClaimFlag;
 }[] = [
   {
     icon: Archive,
+    gate: "regulatoryArchiving",
     title: "Compliance Archiving (Auto-BCC)",
     body:
       "Each email or SMS card will generate a timestamped PDF/HTML audit snapshot: the personal note, the signature and the disclosures you configure, such as NPN, CRD, DRE or State Bar identifiers. A copy goes to the archive address your compliance team designates.",
@@ -54,6 +56,8 @@ const CARDS: {
   },
 ];
 
+const SHOWN = CARDS.filter((c) => claimVisible(c.gate));
+
 const OUTCOMES = [
   { title: "Stronger relationships", body: "A personal note on the dates clients actually care about." },
   { title: "Fewer forgotten touchpoints", body: "Milestones are queued ahead of time, not remembered the night before." },
@@ -76,8 +80,8 @@ export function ComplianceSection() {
           </p>
         </div>
 
-        <div className="mt-12 grid gap-5 lg:grid-cols-3">
-          {CARDS.map((c, i) => (
+        <div className={clsx("mt-12 grid gap-5", SHOWN.length === 3 ? "lg:grid-cols-3" : "lg:grid-cols-2")}>
+          {SHOWN.map((c, i) => (
             <article key={c.title} className={clsx("emboss flex flex-col overflow-hidden rounded-[1.75rem] bg-white ring-1 ring-[#EDE4D3]")}>
               <div className={clsx("linen relative h-44 border-b border-[#EDE4D3]")}>{c.visual}</div>
               <div className="flex flex-1 flex-col p-6 sm:p-7">

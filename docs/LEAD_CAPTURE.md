@@ -34,14 +34,16 @@ Table `reservations`. Its schema is defined as ordered, idempotent migrations in
 
 ## Founding Charter cap and status
 - A reservation is a nonbinding expression of interest, and submitting never guarantees a seat. The public form always creates `new`, and it can't set or read status.
-- Only `accepted` reservations count toward `CHARTER.seats` (15). `npm run leads:admin -- set <reference> accepted` refuses once 15 are accepted. The cap is read from `src/config/charter.ts`, so it has a single source.
+- Only `accepted` reservations count toward `CHARTER.seats` (15). The cap is enforced **in the database** by a trigger (migration `003_charter_cap_guard`). Any route, whether the Neon console, a database app or the admin script, gets "Founding Charter cap reached" on a 16th acceptance. The trigger takes an advisory lock, so two simultaneous acceptances can't both slip through. It also stamps `status_updated_at`.
+- The seat count lives in `charter_settings` and is synced from `CHARTER.seats` (`src/config/charter.ts`) whenever migrations run, so the config stays the single source.
+- Operators manage leads without a terminal: see `docs/LEAD_OPERATIONS.md`.
 - Commands: `npm run leads:admin -- summary`, `-- list [status]`, `-- set <reference> <status> ["note"]`. `<reference>` is the 8-character code the visitor sees on the success screen.
 
 ## Reading leads
 - **Neon console:** Vercel dashboard → Storage → `daybright-leads` → Open in Neon → Tables → `reservations`.
 - **Command line:** `npm run leads:admin -- list` (see above).
 - **CSV:** run `vercel env pull .env.local && npm run leads:export > leads.csv`. Status, note and status time are included. The export guards against spreadsheet formula injection. Don't commit the output.
-- **Instant alerts:** configure the optional Resend email (see `PRODUCTION_SETUP.md`).
+- **Instant alerts:** the optional Resend email (`PRODUCTION_SETUP.md` section 2) contains only reference, time, tier, name, firm and email, with no personal data in the subject. Notes and other fields stay in the database.
 
 ## Responses
 `201` stored · `400/413/415` malformed · `403` cross-site or failed bot check · `422` validation · `429` rate limited · `502` storage failed · `503` no store configured.

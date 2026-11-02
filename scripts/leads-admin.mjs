@@ -7,9 +7,9 @@
 // For Production, pull its env into a separate file and pass it explicitly (see docs/PRODUCTION_SETUP.md):
 //   node --env-file=.env.production.local scripts/leads-admin.mjs summary
 // Output contains personal data: don't paste it into tickets or commit it.
-import { readFileSync } from "node:fs";
 import { neon } from "@neondatabase/serverless";
 import { LEAD_STATUSES, migrate } from "../src/lib/lead-schema.mjs";
+import { charterSeats } from "./charter-seats.mjs";
 
 const url = process.env.DATABASE_URL;
 if (!url) {
@@ -17,11 +17,8 @@ if (!url) {
   process.exit(1);
 }
 const sql = neon(url);
-await migrate(sql);
-
-// The cap lives in src/config/charter.ts (CHARTER.seats); read it from there so it has one source.
-const cap = Number(readFileSync(new URL("../src/config/charter.ts", import.meta.url), "utf8").match(/^\s*seats:\s*(\d+),/m)?.[1]);
-if (!Number.isInteger(cap) || cap < 1) throw new Error("Couldn't read CHARTER.seats from src/config/charter.ts");
+const cap = charterSeats();
+await migrate(sql, { charterSeats: cap });
 
 const [cmd = "summary", ...args] = process.argv.slice(2);
 const ref = (id) => String(id).slice(0, 8).toUpperCase();
@@ -57,19 +54,11 @@ if (cmd === "summary") {
   const matches = await sql`select id, kind, status, firm from reservations where id::text like ${prefix.toLowerCase() + "%"}`;
   if (matches.length !== 1) throw new Error(`Reference ${prefix} matched ${matches.length} leads; use a longer prefix.`);
   const lead = matches[0];
-  // Accepting a reservation is conditional on the cap, checked in the same statement as the update.
-  const updated =
-    status === "accepted" && lead.kind === "reservation"
-      ? await sql`
-          update reservations set status = 'accepted', status_note = ${note}, status_updated_at = now()
-          where id = ${lead.id}
-            and (status = 'accepted'
-                 or (select count(*) from reservations where kind = 'reservation' and status = 'accepted') < ${cap})
-          returning status`
-      : await sql`
-          update reservations set status = ${status}, status_note = ${note}, status_updated_at = now()
-          where id = ${lead.id} returning status`;
-  if (!updated.length) {
+  // The database trigger (migration 003) enforces the cap and stamps status_updated_at.
+  try {
+    await sql`update reservations set status = ${status}, status_note = ${note} where id = ${lead.id}`;
+  } catch (err) {
+    if (!/cap reached/.test(String(err?.message))) throw err;
     console.error(`Not changed: all ${cap} Founding Charter seats are already accepted. Waitlist this request or raise CHARTER.seats first.`);
     process.exit(2);
   }

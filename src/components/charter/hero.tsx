@@ -5,7 +5,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { FileCheck2 } from "lucide-react";
 import { CardFront } from "@/components/cards/card-art";
 import { Envelope, type EnvelopeStage } from "@/components/cards/envelope";
-import { CAPABILITY_PILLS, CHARTER } from "@/config/charter";
+import { CAPABILITY_PILLS, CHARTER, CLAIM_FLAGS, claimVisible } from "@/config/charter";
 import { CharterButton, SampleButton } from "./cta";
 import { StatusChip } from "./status";
 import { VERTICAL_SAMPLES } from "./samples";
@@ -59,7 +59,7 @@ export function CharterHero() {
           </p>
 
           <ul className="mt-9 grid gap-2.5" aria-label="Compliance capabilities in development">
-            {CAPABILITY_PILLS.map((p) => (
+            {CAPABILITY_PILLS.filter((p) => claimVisible(p.gate)).map((p) => (
               <li key={p.title} className="emboss flex items-start gap-3 rounded-2xl bg-white/80 px-4 py-3">
                 <FileCheck2 className="mt-0.5 size-[18px] shrink-0 text-[#2E4A7A]" aria-hidden />
                 <div className="min-w-0 flex-1">
@@ -79,24 +79,26 @@ export function CharterHero() {
         {/* Stationery composition */}
         <div className="relative mx-auto w-full max-w-[460px] lg:mt-6" aria-hidden>
           <div className="absolute -inset-x-10 -top-6 bottom-10 rounded-[3rem] bg-[radial-gradient(closest-side,rgb(201_162_75/0.18),transparent)]" />
-          <motion.div
-            className="emboss absolute -left-4 top-6 z-0 w-[44%] rotate-[-7deg] rounded-xl bg-white p-3 sm:-left-10"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.9, duration: 0.6 }}
-          >
-            <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-ink-3">Audit snapshot</p>
-            <p className="mt-1 font-display text-[13px] font-semibold text-ink">Card delivered</p>
-            <div className="mt-2 space-y-1.5">
-              {["Timestamp", "Message", "Signature", "CRD #"].map((r) => (
-                <div key={r} className="flex items-center gap-2">
-                  <span className="w-14 text-[8.5px] uppercase tracking-wide text-ink-3">{r}</span>
-                  <span className="h-1.5 flex-1 rounded-full bg-[#EDE5D6]" />
-                </div>
-              ))}
-            </div>
-            <p className="mt-2 inline-block rounded-full bg-butter-soft px-1.5 py-0.5 text-[8.5px] font-bold uppercase tracking-wide text-butter-deep">Planned</p>
-          </motion.div>
+          {CLAIM_FLAGS.regulatoryArchiving && (
+            <motion.div
+              className="emboss absolute -left-4 top-6 z-0 w-[44%] rotate-[-7deg] rounded-xl bg-white p-3 sm:-left-10"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.9, duration: 0.6 }}
+            >
+              <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-ink-3">Audit snapshot</p>
+              <p className="mt-1 font-display text-[13px] font-semibold text-ink">Card delivered</p>
+              <div className="mt-2 space-y-1.5">
+                {["Timestamp", "Message", "Signature", "CRD #"].map((r) => (
+                  <div key={r} className="flex items-center gap-2">
+                    <span className="w-14 text-[8.5px] uppercase tracking-wide text-ink-3">{r}</span>
+                    <span className="h-1.5 flex-1 rounded-full bg-[#EDE5D6]" />
+                  </div>
+                ))}
+              </div>
+              <p className="mt-2 inline-block rounded-full bg-butter-soft px-1.5 py-0.5 text-[8.5px] font-bold uppercase tracking-wide text-butter-deep">Planned</p>
+            </motion.div>
+          )}
 
           <div className="relative z-10 mx-auto w-[86%] pt-[62%]">
             <Envelope

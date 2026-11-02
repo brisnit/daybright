@@ -5,6 +5,7 @@
 // explicit, verifiable step for Production.
 import { neon } from "@neondatabase/serverless";
 import { MIGRATIONS, migrate } from "../src/lib/lead-schema.mjs";
+import { charterSeats } from "./charter-seats.mjs";
 
 const url = process.env.DATABASE_URL;
 if (!url) {
@@ -13,11 +14,13 @@ if (!url) {
 }
 const sql = neon(url);
 const host = new URL(url).hostname;
-const applied = await migrate(sql);
+const applied = await migrate(sql, { charterSeats: charterSeats() });
 console.log(`Database host: ${host}`);
 console.log(applied.length ? `Applied: ${applied.join(", ")}` : "Already up to date.");
 const rows = await sql`select id, applied_at from schema_migrations order by id`;
 for (const r of rows) console.log(`  ${r.id}  ${new Date(r.applied_at).toISOString()}`);
+const [cap] = await sql`select seats from charter_settings`;
+console.log(`Founding Charter cap in database: ${cap?.seats} seats`);
 if (rows.length !== MIGRATIONS.length) {
   console.error(`Expected ${MIGRATIONS.length} migrations, found ${rows.length}.`);
   process.exit(1);

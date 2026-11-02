@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { FaqList, type FaqItem } from "@/components/marketing/faq";
-import { CHARTER, SALES_EMAIL } from "@/config/charter";
+import { CHARTER, CLAIM_FLAGS, SALES_EMAIL } from "@/config/charter";
 import { CharterBand, CharterButton, SampleButton, StickyCharterBar } from "./cta";
 import { CharterHero } from "./hero";
 import { ComplianceSection } from "./compliance";
@@ -11,14 +11,20 @@ import { PricingMatrix } from "./pricing";
 import { SampleCardExperience } from "./sample-card";
 import { useCharter } from "./charter-provider";
 
+/** Shown only while CLAIM_FLAGS.giftingTerms is true (fees hidden pending legal review). */
+const GIFTING_FAQ: FaqItem = {
+  q: "How will gifting be funded?",
+  a: "Gifting is a concept and isn't built. The terms we're considering are $0 platform markup on ACH-funded gifts, a 3.5% processing fee for card funding, and $0.05 per extra SMS/MMS. These may change or not launch, and payments need legal review first. Merchant availability isn't confirmed.",
+};
+
 export const CHARTER_FAQ: FaqItem[] = [
   {
-    q: "Is Daybright FINRA, SEC or RESPA compliant?",
-    a: "No. No software makes a firm compliant on its own, and no regulator has reviewed or approved Daybright. The compliance features described here (Auto-BCC archiving, audit snapshots, principal-locked templates) are planned, not built. They're intended to help your team supervise and archive card communications under your own policies. Your firm stays responsible for its regulatory obligations.",
+    q: "Will Daybright make my firm's client communications compliant?",
+    a: "No. Daybright is not a compliance or recordkeeping product, no regulator has reviewed or approved it, and it doesn't provide legal or compliance advice. Your firm stays responsible for supervising, approving and retaining client communications under its own policies.",
   },
   {
     q: "What works today, and what is still in development?",
-    a: "Daybright isn't in production use yet. Card design, branded templates, message review, birthday automation rules, CSV import with duplicate warnings and year-over-year design rotation can be tried in the product preview (marked Beta). The preview runs in your browser with sample data and doesn't send anything. CRM connections, SMS, archiving, household grouping and team seats are Planned, and no release dates are committed yet.",
+    a: "Daybright isn't in production use yet. Card design, branded templates, message review, birthday automation rules, CSV import with duplicate warnings and year-over-year design rotation can be tried in the product preview (marked Beta). The preview runs in your browser with sample data and doesn't send anything. CRM connections, SMS, household grouping and team seats are Planned, and no release dates are committed yet.",
   },
   {
     q: "Which CRMs will you connect to?",
@@ -36,10 +42,7 @@ export const CHARTER_FAQ: FaqItem[] = [
     q: "Is pricing locked in, and what about refunds?",
     a: "Prices shown are proposed. We haven't set a price-lock period, renewal terms or a refund policy yet, so none is promised here. They'll be stated in writing before you agree to anything, and nothing is charged before then.",
   },
-  {
-    q: "How will gifting be funded?",
-    a: "Gifting is a concept and isn't built. The terms we're considering are $0 platform markup on ACH-funded gifts, a 3.5% processing fee for card funding, and $0.05 per extra SMS/MMS. These may change or not launch, and payments need legal review first. Merchant availability isn't confirmed.",
-  },
+  ...(CLAIM_FLAGS.giftingTerms ? [GIFTING_FAQ] : []),
 ];
 
 export function CharterHome() {
