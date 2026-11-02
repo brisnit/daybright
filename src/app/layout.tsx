@@ -12,9 +12,11 @@ const courier = Courier_Prime({ variable: "--font-courier", subsets: ["latin"], 
 const shrikhand = Shrikhand({ variable: "--font-shrikhand", subsets: ["latin"], weight: "400" });
 
 export const metadata: Metadata = {
-  title: { default: `${BRAND.name} · Birthday cards & gifts, thoughtfully on time`, template: `%s · ${BRAND.name}` },
+  metadataBase: new URL("https://daybright.store"),
+  title: { default: `${BRAND.name} · Client retention & milestone intelligence`, template: `%s · ${BRAND.name}` },
   description:
-    "Create an original birthday card, find a thoughtful gift, and make someone's day. For one person or every customer you serve.",
+    "Tactile digital stationery and milestone automation for financial advisors, insurance agencies, real estate teams and legal practices.",
+  openGraph: { siteName: BRAND.name, type: "website" },
 };
 
 export const viewport: Viewport = {

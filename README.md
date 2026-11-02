@@ -19,11 +19,34 @@ npm run build      # production build
 
 State is stored in your browser (`localStorage` key `daybright-demo`). Use **Reset demo** in the workspace sidebar to restore the sample business.
 
+## Founding Charter reservations (lead capture)
+
+The B2B homepage and `/pricing` open a reservation / inquiry modal that posts to `POST /api/reservations`
+(contract documented in `src/lib/reservations.ts`). Delivery:
+
+| Environment variable | Effect |
+| --- | --- |
+| `RESERVATION_WEBHOOK_URL` | Each valid lead is POSTed here as JSON. Success is shown only on a 2xx response. |
+| `RESERVATION_WEBHOOK_SECRET` | Optional. Sent as `Authorization: Bearer <secret>`. |
+| `RESERVATION_FILE_STORE=1` | Allows the local file fallback (`.data/reservations.jsonl`) in production. Not suitable for serverless hosts. |
+
+In development, leads are appended to `.data/reservations.jsonl` (gitignored). In production with no destination configured,
+the endpoint returns `503 not_configured`; the modal then shows an error and a pre-filled email fallback, never a success message.
+No payment is collected.
+
+Analytics events (`cta_click`, `sample_demo_open`, `reservation_modal_open`, `reservation_submit_success`, …) are pushed to
+`window.dataLayer` and dispatched as a `daybright:analytics` DOM event (`src/lib/analytics.ts`). No vendor is installed.
+
+Marketing claims, feature availability and pricing live in `src/config/charter.ts`. See `docs/CLAIMS_REVIEW.md`
+before changing any availability status.
+
 ## Where things are
 
 | Experience | Route |
 | --- | --- |
-| Homepage | `/` |
+| B2B homepage (Founding Charter) | `/` |
+| B2B pricing | `/pricing` |
+| Consumer storefront | `/personal` |
 | Card gallery / detail | `/cards`, `/cards/[id]` |
 | AI Card Studio | `/studio` (`?prompt=`), `/app/studio` |
 | Natural-language search | `/search?q=` |

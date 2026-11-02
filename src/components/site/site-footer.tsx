@@ -1,22 +1,52 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand/logo";
-import { BRAND, PRICING_COPY } from "@/config/brand";
+import { BRAND } from "@/config/brand";
+import { SALES_EMAIL } from "@/config/charter";
 
 const COLS = [
-  { title: "Send", links: [["/cards", "Birthday cards"], ["/studio", "Card Studio"], ["/gifts", "Gifts"], ["/search", "Search cards & gifts"]] },
-  { title: "Business", links: [["/business", "How it works"], ["/pricing", "Plans & pricing"], ["/onboarding", "Start setup"], ["/app", "Explore business demo"]] },
-  { title: "See it", links: [["/open?id=demo-card", "Example: card only"], ["/open?id=demo-gift", "Example: card + gift"]] },
+  {
+    title: "Business",
+    links: [
+      ["/#compliance", "Compliance & intelligence"],
+      ["/#integrations", "CRM integrations"],
+      ["/pricing", "Pricing"],
+      ["/app", "Product preview"],
+      ["/onboarding", "Guided setup demo"],
+    ],
+  },
+  {
+    title: "Personal cards",
+    links: [
+      ["/personal", "Send a birthday card"],
+      ["/cards", "Card collection"],
+      ["/studio", "Card Studio"],
+      ["/gifts", "Gifts"],
+    ],
+  },
+  {
+    title: "See it",
+    links: [
+      ["/#sample", "Interactive sample card"],
+      ["/open?id=demo-card", "Full-screen recipient view"],
+    ],
+  },
 ] as const;
 
 export function SiteFooter() {
   return (
-    <footer className="mt-auto border-t border-line bg-cream/60">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.4fr_repeat(3,1fr)]">
-        <div className="max-w-xs">
+    <footer className="mt-auto border-t border-line bg-[#F6F1E7]">
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.4fr_repeat(3,1fr)] lg:px-8">
+        <div className="max-w-sm">
           <Logo />
-          <p className="mt-4 text-sm leading-relaxed text-ink-2">{BRAND.tagline}</p>
+          <p className="mt-4 text-sm leading-relaxed text-ink-2">
+            Client retention and milestone intelligence for financial advisors, insurance agencies, real estate teams and legal practices.
+          </p>
+          <a href={`mailto:${SALES_EMAIL}`} className="mt-4 inline-block text-sm font-semibold text-cobalt hover:underline">
+            {SALES_EMAIL}
+          </a>
           <p className="mt-4 text-[12px] leading-relaxed text-ink-3">
-            This is an interactive prototype. Sends, payments, gifts and delivery are simulated. {PRICING_COPY.provisional}
+            Features marked Beta, Planned, Roadmap or Concept are not generally available. Daybright does not provide legal, tax,
+            investment or compliance advice, and is not reviewed or approved by any regulator.
           </p>
         </div>
         {COLS.map((c) => (
@@ -35,8 +65,9 @@ export function SiteFooter() {
         ))}
       </div>
       <div className="border-t border-line">
-        <p className="mx-auto max-w-7xl px-4 py-5 text-[12px] text-ink-3 sm:px-6">
-          © {BRAND.name} (working name). Demo merchants and products are fictional.
+        <p className="mx-auto max-w-7xl px-4 py-5 text-[12px] text-ink-3 sm:px-6 lg:px-8">
+          © {BRAND.name}. Sample firms, people and license numbers shown on this site are fictional. Third-party product names are
+          trademarks of their respective owners.
         </p>
       </div>
     </footer>

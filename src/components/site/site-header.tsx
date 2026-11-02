@@ -5,22 +5,24 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { clsx } from "clsx";
-import { Menu, Search, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
-import { ButtonLink } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
+import { useCharter } from "@/components/charter/charter-provider";
 
 export const SITE_NAV = [
-  { href: "/cards", label: "Cards" },
-  { href: "/studio", label: "Card Studio" },
-  { href: "/gifts", label: "Gifts" },
-  { href: "/business", label: "For business" },
+  { href: "/#compliance", label: "Compliance" },
+  { href: "/#sample", label: "Sample card" },
+  { href: "/#integrations", label: "Integrations" },
   { href: "/pricing", label: "Pricing" },
+  { href: "/personal", label: "Personal cards" },
 ];
 
 export function SiteHeader() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { openReservation, openSample } = useCharter();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -38,18 +40,19 @@ export function SiteHeader() {
     <header
       className={clsx(
         "sticky top-0 z-50 transition-[background-color,box-shadow,backdrop-filter]",
-        scrolled ? "bg-paper/85 shadow-[0_1px_0_var(--color-line)] backdrop-blur-md" : "bg-paper/0",
+        scrolled || open ? "bg-paper/90 shadow-[0_1px_0_var(--color-line)] backdrop-blur-md" : "bg-transparent",
       )}
     >
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:h-[72px]">
+      <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:h-[72px] lg:px-8">
         <Logo />
-        <nav aria-label="Main" className="ml-6 hidden items-center gap-1 lg:flex">
+        <nav aria-label="Main" className="ml-4 hidden items-center gap-0.5 lg:flex">
           {SITE_NAV.map((n) => {
-            const active = pathname === n.href || pathname.startsWith(n.href + "/");
+            const active = !n.href.includes("#") && (pathname === n.href || pathname.startsWith(n.href + "/"));
             return (
               <Link
                 key={n.href}
                 href={n.href}
+                aria-current={active ? "page" : undefined}
                 className={clsx(
                   "rounded-full px-3.5 py-2 text-[14px] font-semibold transition",
                   active ? "bg-ink/[0.06] text-ink" : "text-ink-2 hover:bg-ink/[0.04] hover:text-ink",
@@ -61,25 +64,19 @@ export function SiteHeader() {
           })}
         </nav>
         <div className="ml-auto flex items-center gap-2">
-          <Link
-            href="/search"
-            className="hidden h-10 w-56 items-center gap-2 rounded-full bg-white/80 px-4 text-[14px] text-ink-3 ring-1 ring-inset ring-line-2 transition hover:ring-ink/30 md:flex xl:w-64"
-          >
-            <Search className="size-4" aria-hidden />
-            Search cards &amp; gifts
-          </Link>
-          <Link href="/search" aria-label="Search cards and gifts" className="grid size-10 place-items-center rounded-full bg-white ring-1 ring-line-2 md:hidden">
-            <Search className="size-4" />
+          <Link href="/app" className="hidden rounded-full px-3 py-2 text-[14px] font-semibold text-ink-2 hover:text-ink xl:inline-flex">
+            Product preview
           </Link>
           <span className="hidden sm:block">
-            <ButtonLink href="/app" variant="ink" size="md">
-              Explore business demo
-            </ButtonLink>
+            <Button variant="ink" size="md" onClick={() => openReservation(null, "header")}>
+              Claim Charter Access
+            </Button>
           </span>
           <button
             type="button"
             onClick={() => setOpen((o) => !o)}
             aria-expanded={open}
+            aria-controls="mobile-nav"
             aria-label={open ? "Close menu" : "Open menu"}
             className="grid size-10 place-items-center rounded-full bg-white ring-1 ring-line-2 lg:hidden"
           >
@@ -90,6 +87,7 @@ export function SiteHeader() {
       <AnimatePresence>
         {open && (
           <motion.nav
+            id="mobile-nav"
             aria-label="Mobile"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
@@ -98,13 +96,35 @@ export function SiteHeader() {
           >
             <div className="flex flex-col gap-1 px-4 py-4">
               {SITE_NAV.map((n) => (
-                <Link key={n.href} href={n.href} className="rounded-xl px-3 py-3 text-lg font-semibold hover:bg-ink/5">
+                <Link key={n.href} href={n.href} onClick={() => setOpen(false)} className="rounded-xl px-3 py-3 text-lg font-semibold hover:bg-ink/5">
                   {n.label}
                 </Link>
               ))}
-              <ButtonLink href="/app" variant="ink" size="lg" className="mt-3">
-                Explore business demo
-              </ButtonLink>
+              <Link href="/app" className="rounded-xl px-3 py-3 text-lg font-semibold hover:bg-ink/5">
+                Product preview
+              </Link>
+              <div className="mt-3 grid gap-2">
+                <Button
+                  variant="ink"
+                  size="lg"
+                  onClick={() => {
+                    setOpen(false);
+                    openReservation(null, "mobile-menu");
+                  }}
+                >
+                  Claim Founding Charter Access
+                </Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => {
+                    setOpen(false);
+                    openSample("mobile-menu");
+                  }}
+                >
+                  Unwrap a sample card
+                </Button>
+              </div>
             </div>
           </motion.nav>
         )}
@@ -112,3 +132,4 @@ export function SiteHeader() {
     </header>
   );
 }
+
