@@ -118,13 +118,22 @@ export async function storeLead(record: LeadRecord, opts: { ipHash: string; simu
   }
 }
 
-/** Post-commit notifications. Failures are logged, never surfaced to the visitor (the lead is already stored). */
+const RESEND_VARS = ["RESEND_API_KEY", "LEAD_NOTIFY_FROM", "LEAD_NOTIFY_TO"] as const;
+
+/**
+ * Post-commit notifications. Failures are logged, never surfaced to the visitor (the lead is already stored).
+ * Logs carry only the lead reference and variable names: never values, contact details or notes.
+ */
 export async function notifyLead(record: LeadRecord) {
+  const ref = record.id.slice(0, 8).toUpperCase();
   const tasks: Promise<unknown>[] = [];
   if (process.env.RESERVATION_WEBHOOK_URL && db()) tasks.push(postWebhook(record));
-  if (process.env.RESEND_API_KEY && process.env.LEAD_NOTIFY_TO && process.env.LEAD_NOTIFY_FROM) tasks.push(sendEmail(record));
+  const missing = RESEND_VARS.filter((v) => !process.env[v]);
+  if (!missing.length) tasks.push(sendEmail(record, ref));
+  else if (missing.length < RESEND_VARS.length) console.warn("[reservations] lead alert skipped: missing", missing.join(", "), ref);
+  else console.info("[reservations] lead alert skipped: email alerts not configured", ref);
   const results = await Promise.allSettled(tasks);
-  for (const r of results) if (r.status === "rejected") console.error("[reservations] notification failed", record.id, String(r.reason));
+  for (const r of results) if (r.status === "rejected") console.error("[reservations] notification failed", ref, String(r.reason));
 }
 
 async function postWebhook(record: LeadRecord) {
@@ -174,7 +183,7 @@ const TIER_NAMES: Record<string, string> = {
   enterprise: "Enterprise",
 };
 
-async function sendEmail(record: LeadRecord) {
+async function sendEmail(record: LeadRecord, ref: string) {
   const { subject, text } = leadAlert(record);
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -188,5 +197,11 @@ async function sendEmail(record: LeadRecord) {
     }),
     signal: AbortSignal.timeout(8000),
   });
-  if (!res.ok) throw new Error(`Resend responded ${res.status}`);
+  if (!res.ok) {
+    // Resend's error name (e.g. "validation_error") only; its message can echo addresses.
+    const name = await res.json().then((b) => b?.name, () => undefined);
+    throw new Error(`Resend responded ${res.status}${name ? ` (${name})` : ""}`);
+  }
+  const { id } = await res.json().catch(() => ({ id: undefined }));
+  console.info("[reservations] lead alert accepted by Resend", ref, id ?? "");
 }
