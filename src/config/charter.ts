@@ -49,9 +49,16 @@ export const CHARTER = {
 export type TierId = "solo" | "agency" | "sponsor" | "enterprise";
 
 /**
+ * Co-Marketing Sponsor tier switch (see CLAIM_FLAGS.sponsorTier). A plain constant so that, while it's false, the
+ * build drops the tier's content from the browser bundle as well as from the rendered pages.
+ */
+const SPONSOR_TIER_ENABLED = false;
+
+/**
  * Claims hidden from the public site until evidence or legal review supports them. Content gated by a flag stays
  * in this file (and in docs/CLAIMS_REVIEW.md) so it can be restored by flipping the flag. Owner decision 2026-11-02:
  * gifting fee terms, the RESPA concept and FINRA/SEC archiving claims stay hidden until legal review is complete.
+ * Owner decision 2026-11-02: the Co-Marketing Sponsor tier stays hidden until counsel reviews it under RESPA.
  */
 export const CLAIM_FLAGS = {
   /** MBE supplier-diversity positioning. Keep false until certification is documented. */
@@ -62,6 +69,12 @@ export const CLAIM_FLAGS = {
   respaConcept: false,
   /** Auto-BCC archiving for FINRA/SEC recordkeeping, audit snapshots and named archive vendors. */
   regulatoryArchiving: false,
+  /**
+   * The Co-Marketing Sponsor tier (loan officers, title reps and wholesalers paying for referral partners' cards):
+   * its pricing card, inquiry option, FAQ and links. The arrangement itself needs RESPA review, so the whole tier is
+   * hidden, and the API rejects Sponsor inquiries while this is false. Set via SPONSOR_TIER_ENABLED above.
+   */
+  sponsorTier: SPONSOR_TIER_ENABLED,
 } as const;
 
 export type ClaimFlag = keyof typeof CLAIM_FLAGS;
@@ -105,6 +118,10 @@ export type Tier = {
   indicativePerSeat?: { min: number; max: number; approved: boolean };
   features: Feature[];
   cta: { label: string; action: "reserve" | "inquire" };
+  /** Hides the whole tier publicly unless that claim flag is on. */
+  gate?: ClaimFlag;
+  /** Inquiry tiers only: final-CTA link text, modal title and the optional size field. */
+  inquiry?: { link: string; title: string; sizeLabel: string; sizePlaceholder: string };
 };
 
 export const TIERS: Tier[] = [
@@ -141,19 +158,31 @@ export const TIERS: Tier[] = [
     ],
     cta: { label: "Request an Agency Charter Seat", action: "reserve" },
   },
-  {
-    id: "sponsor",
-    name: "Co-Marketing Sponsor",
-    audience: "Loan officers, title reps, wholesalers",
-    charter: { amount: 349, cadence: "month", label: "Charter Partner" },
-    features: [
-      { label: `Sponsor up to ${QUOTAS.sponsor.partnerAccounts} referral partner accounts`, status: "planned", quota: true },
-      { label: "Dual co-branded card footers and wax seals", status: "planned" },
-      { label: "RESPA / marketing-compliance split tracking", status: "concept", gate: "respaConcept" },
-      { label: "Central sponsor ROI dashboard", status: "roadmap" },
-    ],
-    cta: { label: "Apply for Sponsor Account", action: "inquire" },
-  },
+  // Hidden pending RESPA review: included only while SPONSOR_TIER_ENABLED is true.
+  ...(SPONSOR_TIER_ENABLED
+    ? ([
+      {
+        id: "sponsor",
+        name: "Co-Marketing Sponsor",
+        audience: "Loan officers, title reps, wholesalers",
+        charter: { amount: 349, cadence: "month", label: "Charter Partner" },
+        features: [
+          { label: `Sponsor up to ${QUOTAS.sponsor.partnerAccounts} referral partner accounts`, status: "planned", quota: true },
+          { label: "Dual co-branded card footers and wax seals", status: "planned" },
+          { label: "RESPA / marketing-compliance split tracking", status: "concept", gate: "respaConcept" },
+          { label: "Central sponsor ROI dashboard", status: "roadmap" },
+        ],
+        cta: { label: "Apply for Sponsor Account", action: "inquire" },
+        inquiry: {
+          link: "Sponsor accounts for referral partners",
+          title: "Apply for a Sponsor account",
+          sizeLabel: "Referral partners to sponsor",
+          sizePlaceholder: "e.g. 12",
+        },
+        gate: "sponsorTier",
+      },
+      ] satisfies Tier[])
+    : []),
   {
     id: "enterprise",
     name: "Enterprise IMO / Brokerage",
@@ -168,10 +197,17 @@ export const TIERS: Tier[] = [
       { label: "Custom API", status: "roadmap" },
     ],
     cta: { label: "Request an Enterprise Demo", action: "inquire" },
+    inquiry: { link: "Enterprise IMOs & brokerages", title: "Request an Enterprise demo", sizeLabel: "Approximate seats", sizePlaceholder: "e.g. 250" },
   },
 ];
 
+/** Hidden tiers (Sponsor while gated) aren't in TIERS, so pass only publicly offered ids. */
 export const getTier = (id: TierId) => TIERS.find((t) => t.id === id)!;
+
+/** Tiers that may be shown, reserved or inquired about publicly. Use this, not TIERS, for anything visitors see. */
+export const PUBLIC_TIERS = TIERS.filter((t) => claimVisible(t.gate));
+export const RESERVATION_TIER_IDS = PUBLIC_TIERS.filter((t) => t.cta.action === "reserve").map((t) => t.id);
+export const INQUIRY_TIER_IDS = PUBLIC_TIERS.filter((t) => t.cta.action === "inquire").map((t) => t.id);
 
 /** Features that may be shown publicly for a tier. */
 export const visibleFeatures = (t: Tier) => t.features.filter((f) => claimVisible(f.gate));

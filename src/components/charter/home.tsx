@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { FaqList, type FaqItem } from "@/components/marketing/faq";
-import { CHARTER, CLAIM_FLAGS, SALES_EMAIL } from "@/config/charter";
+import { CHARTER, CLAIM_FLAGS, PUBLIC_TIERS, SALES_EMAIL } from "@/config/charter";
 import { CharterBand, CharterButton, SampleButton, StickyCharterBar } from "./cta";
 import { CharterHero } from "./hero";
 import { ComplianceSection } from "./compliance";
@@ -127,12 +127,11 @@ export function CharterHome() {
             <SampleButton source="final" tone="dark" />
           </div>
           <div className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-[14px] text-paper/70">
-            <button type="button" onClick={() => openInquiry("sponsor", "final")} className="font-semibold underline-offset-4 hover:text-paper hover:underline">
-              Sponsor accounts for referral partners
-            </button>
-            <button type="button" onClick={() => openInquiry("enterprise", "final")} className="font-semibold underline-offset-4 hover:text-paper hover:underline">
-              Enterprise IMOs &amp; brokerages
-            </button>
+            {PUBLIC_TIERS.filter((t) => t.inquiry).map((t) => (
+              <button key={t.id} type="button" onClick={() => openInquiry(t.id, "final")} className="font-semibold underline-offset-4 hover:text-paper hover:underline">
+                {t.inquiry!.link}
+              </button>
+            ))}
             <Link href="/app" className="font-semibold underline-offset-4 hover:text-paper hover:underline">
               Explore the product preview (sample data)
             </Link>

@@ -5,7 +5,7 @@ There are two pricing models in the code:
 
 | Source | Used by | Model |
 | --- | --- | --- |
-| `TIERS` + `QUOTAS` in `src/config/charter.ts` | `/`, `/pricing`, `/business` and `/personal` plan summaries, FAQ | Solo $39/mo ($199/yr charter) · Agency $149/mo ($599/yr charter) · Sponsor $499/mo ($349/mo charter) · Enterprise custom. Limits are **contacts, seats and SMS**. |
+| `TIERS` + `QUOTAS` in `src/config/charter.ts` | `/`, `/pricing`, `/business` and `/personal` plan summaries, FAQ | Solo $39/mo ($199/yr charter) · Agency $149/mo ($599/yr charter) · Sponsor $499/mo ($349/mo charter) · Enterprise custom. Limits are **contacts, seats and SMS**. Sponsor is hidden publicly (`CLAIM_FLAGS.sponsorTier`); public surfaces use `PUBLIC_TIERS`. |
 | `PLANS` in `src/config/brand.ts` | `/app` workspace, `/onboarding` | Starter $39 · Growth $79 · Scale $149. Limits are **card sends per month**, plus feature flags. |
 
 Public marketing pages no longer show Starter/Growth/Scale. On this branch the FAQ summary and "Business plans from $39/month" now come from `TIERS`; $39 equals Solo's standard price.

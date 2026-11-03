@@ -2,14 +2,14 @@
 
 import { clsx } from "clsx";
 import { Check } from "lucide-react";
-import { CHARTER, CLAIM_FLAGS, GIFTING_TERMS, QUOTAS, TIERS, visibleFeatures, type Availability, type Tier } from "@/config/charter";
+import { CHARTER, CLAIM_FLAGS, GIFTING_TERMS, PUBLIC_TIERS, QUOTAS, visibleFeatures, type Availability, type Tier } from "@/config/charter";
 import { Button } from "@/components/ui/button";
 import { useCharter } from "./charter-provider";
 import { StatusChip, StatusLegend } from "./status";
 
 /** Legend entries for the statuses actually shown in the matrix (gated features excluded). */
 const LEGEND = (["beta", "planned", "roadmap", "concept", "service"] as Availability[]).filter((s) =>
-  TIERS.some((t) => visibleFeatures(t).some((f) => f.status === s)),
+  PUBLIC_TIERS.some((t) => visibleFeatures(t).some((f) => f.status === s)),
 );
 
 const usd = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
@@ -59,8 +59,8 @@ export function PricingMatrix({ source = "pricing", headingLevel = "h2" }: { sou
         </p>
       </div>
 
-      <ul className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {TIERS.map((t) => {
+      <ul className={clsx("mt-8 grid gap-4 md:grid-cols-2", PUBLIC_TIERS.length === 3 ? "xl:grid-cols-3" : "xl:grid-cols-4")}>
+        {PUBLIC_TIERS.map((t) => {
           const featured = t.id === "agency";
           return (
             <li
@@ -91,7 +91,7 @@ export function PricingMatrix({ source = "pricing", headingLevel = "h2" }: { sou
                 onClick={() =>
                   t.cta.action === "reserve"
                     ? openReservation(t.id as "solo" | "agency", `${source}-${t.id}`)
-                    : openInquiry(t.id as "sponsor" | "enterprise", `${source}-${t.id}`)
+                    : openInquiry(t.id, `${source}-${t.id}`)
                 }
               >
                 {t.cta.label}
@@ -123,7 +123,7 @@ export function PricingMatrix({ source = "pricing", headingLevel = "h2" }: { sou
         <StatusLegend statuses={LEGEND} />
         <p className="mt-4 text-[12px] leading-relaxed text-ink-3">
           Prices are proposed, in US dollars, and may change before launch. {CHARTER.nonbinding} No billing is active on this site.
-          Contact, seat, SMS and partner-account limits marked &ldquo;Proposed limit&rdquo; are not final. Planned and roadmap features
+          Contact, seat and SMS limits marked &ldquo;Proposed limit&rdquo; are not final. Planned and roadmap features
           have no committed release dates.
           {CLAIM_FLAGS.respaConcept &&
             " The RESPA / marketing-compliance split-tracking concept is subject to legal review before it is offered."}

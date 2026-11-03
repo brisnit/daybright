@@ -5,12 +5,12 @@ import { AnimatePresence, motion } from "framer-motion";
 import { clsx } from "clsx";
 import { Plus } from "lucide-react";
 import { CONSUMER, PRICING_COPY, money } from "@/config/brand";
-import { TIERS } from "@/config/charter";
+import { PUBLIC_TIERS } from "@/config/charter";
 import { Container, Display, Eyebrow, Reveal } from "./primitives";
 
 export type FaqItem = { q: string; a: ReactNode };
 
-const planSummary = TIERS.map((t) => (t.charter ? `${t.name} ${money(t.charter.amount)}/${t.charter.cadence} (proposed)` : `${t.name} custom`)).join(", ");
+const planSummary = PUBLIC_TIERS.map((t) => (t.charter ? `${t.name} ${money(t.charter.amount)}/${t.charter.cadence} (proposed)` : `${t.name} custom`)).join(", ");
 
 export const FAQS: Record<string, FaqItem> = {
   included: {

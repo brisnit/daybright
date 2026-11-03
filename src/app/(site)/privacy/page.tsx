@@ -50,7 +50,7 @@ export default function PrivacyPage() {
       <p>
         This policy explains how {BRAND.name} <Review>full legal entity name, state of organization and mailing address</Review>{" "}
         (&ldquo;{BRAND.name},&rdquo; &ldquo;we&rdquo; or &ldquo;us&rdquo;) collects and uses information through this website, including the
-        Founding Charter reservation form and the Sponsor and Enterprise inquiry forms. It does not cover the {BRAND.name} product once you
+        Founding Charter reservation form and the Enterprise inquiry form. It does not cover the {BRAND.name} product once you
         become a customer; customer data, including any client data you import, will be governed by your customer agreement and data
         processing terms <Review>confirm a separate customer privacy notice / DPA will exist</Review>.
       </p>

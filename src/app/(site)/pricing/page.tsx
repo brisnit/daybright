@@ -4,7 +4,7 @@ import { PricingPageBody } from "@/components/charter/home";
 export const metadata: Metadata = {
   title: "Pricing",
   description:
-    "Proposed Founding Charter pricing for Solo, Agency, Co-Marketing Sponsor and Enterprise plans. Reservations are nonbinding and nothing is charged.",
+    "Proposed Founding Charter pricing for Solo, Agency and Enterprise plans. Reservations are nonbinding and nothing is charged.",
   alternates: { canonical: "/pricing" },
 };
 

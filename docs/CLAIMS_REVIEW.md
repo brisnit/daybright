@@ -52,6 +52,7 @@ These are removed from every public page, but the content and implementation are
 | --- | --- | --- |
 | `giftingTerms` | Gifting wallet and SMS top-up fees ($0 ACH markup, 3.5% card fee, $0.05/SMS) and the "How will gifting be funded?" FAQ | `GiftingTerms` on pricing, `GIFTING_FAQ` in `home.tsx`, `GIFTING_TERMS` |
 | `respaConcept` | "RESPA / marketing-compliance split tracking" (Sponsor tier) and its pricing footnote | `TIERS.sponsor.features`, pricing footnote |
+| `sponsorTier` | The whole **Co-Marketing Sponsor** tier (owner decision 2026-11-02, third round): its pricing card ($349/mo Charter Partner, 25 partner accounts, co-branded footers, ROI dashboard), the Sponsor inquiry option and modal copy, the "Sponsor accounts for referral partners" link, the Sponsor plan in FAQ summaries and plan cards, "partner-account" in the pricing footnote, and Sponsor mentions in `/pricing` metadata and the privacy draft. **The API also rejects Sponsor inquiries** while the flag is off. | `TIERS` entry with `gate: "sponsorTier"`; everything public reads `PUBLIC_TIERS`, `RESERVATION_TIER_IDS` and `INQUIRY_TIER_IDS` |
 | `regulatoryArchiving` | Auto-BCC archiving for FINRA/SEC recordkeeping (hero pill naming Smarsh / Global Relay), the "Compliance Archiving (Auto-BCC)" card, the hero "Audit snapshot" visual, and the Solo "Auto-BCC compliance archiving" feature | `CAPABILITY_PILLS`, `compliance.tsx`, `hero.tsx`, `TIERS.solo.features` |
 
 **Rewritten, not gated:**
@@ -59,8 +60,9 @@ These are removed from every public page, but the content and implementation are
 - The "CRM timeline write-back" pill detail no longer mentions audit snapshots.
 - "archiving" is gone from the "What works today" answer.
 
+**Restoring the Sponsor tier:** set `sponsorTier: true` (and `respaConcept` if the split-tracking feature is approved), then re-add "Sponsor" to the `/pricing` metadata description and the privacy policy's form list, which are plain text.
+
 **Still visible, consider with counsel:**
-- The **Co-Marketing Sponsor** tier itself: loan officers, title reps and wholesalers sponsoring co-branded cards for referral partners. RESPA Section 8 review would cover this arrangement, not just the split-tracking feature.
 - "Principal-locked template mode" and "Central compliance approval queue" (Planned). These are approval workflows, not archiving claims.
 - "Built for Regulated Industries" positioning.
 
@@ -79,5 +81,5 @@ These are removed from every public page, but the content and implementation are
 ## Still open
 - Legal entity name, address and effective date: pending the owner's legal meeting (2026-11-03). Nothing assumes an entity.
 - Final quotas, price-lock/renewal/refund terms and any delivery commitments: to be set before any written agreement.
-- Gifting terms, the RESPA concept and FINRA/SEC archiving claims are hidden until counsel review. Whether the Co-Marketing Sponsor tier stays visible is the owner's call.
+- Gifting terms, the RESPA concept and FINRA/SEC archiving claims are hidden until counsel review. The Co-Marketing Sponsor tier is hidden too, pending counsel's RESPA review of the arrangement.
 - Product-preview plans vs charter tiers: `docs/PRICING_ALIGNMENT.md`.

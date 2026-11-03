@@ -7,7 +7,7 @@ import { AlertCircle, Check, CheckCircle2, Copy, Loader2, Mail } from "lucide-re
 import { Modal } from "@/components/ui/overlay";
 import { Button } from "@/components/ui/button";
 import { inputClass } from "@/components/ui/field";
-import { CHARTER, CRM_OPTIONS, SALES_EMAIL, SALES_EMAIL_VERIFIED, getTier, type TierId } from "@/config/charter";
+import { CHARTER, CRM_OPTIONS, INQUIRY_TIER_IDS, RESERVATION_TIER_IDS, SALES_EMAIL, SALES_EMAIL_VERIFIED, getTier, type TierId } from "@/config/charter";
 import { Turnstile, TURNSTILE_ENABLED } from "./turnstile";
 import { consentText, emailFallbackHref, emailFallbackText, validateLead, type FieldErrors, type LeadKind, type LeadSubmission } from "@/lib/reservations";
 import { track } from "@/lib/analytics";
@@ -16,8 +16,14 @@ export type LeadRequest = { kind: LeadKind; tier: TierId | null; source: string;
 
 type Status = { state: "idle" } | { state: "submitting" } | { state: "success"; id: string } | { state: "error"; reason: string };
 
-const RESERVATION_TIERS: TierId[] = ["agency", "solo"];
-const INQUIRY_TIERS: TierId[] = ["sponsor", "enterprise"];
+// Publicly offered tiers only (Agency listed first). Hidden tiers never appear as options.
+const RESERVATION_TIERS: TierId[] = [...RESERVATION_TIER_IDS].reverse();
+const INQUIRY_TIERS: TierId[] = INQUIRY_TIER_IDS;
+/** A requested or restored tier, or the default when it isn't publicly offered. */
+const offeredTier = (kind: LeadKind, t?: TierId | null) => {
+  const options = kind === "inquiry" ? INQUIRY_TIERS : RESERVATION_TIERS;
+  return t && options.includes(t) ? t : kind === "inquiry" ? "enterprise" : "agency";
+};
 
 function tierLabel(id: TierId) {
   const t = getTier(id);
@@ -67,7 +73,7 @@ function LeadForm({ request, onClose }: { request: LeadRequest; onClose: () => v
   const formRef = useRef<HTMLFormElement>(null);
   const [data, setData] = useState<Partial<LeadSubmission>>({
     kind: request.kind,
-    tier: request.tier ?? (isInquiry ? "enterprise" : "agency"),
+    tier: offeredTier(request.kind, request.tier),
     fullName: "",
     title: "",
     firm: "",
@@ -96,7 +102,7 @@ function LeadForm({ request, onClose }: { request: LeadRequest; onClose: () => v
     const pending = readPending(request.kind);
     if (pending) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time restore from browser storage
-      setData((d) => ({ ...d, ...pending, tier: request.tier ?? pending.tier ?? d.tier, source: request.source, consent: false }));
+      setData((d) => ({ ...d, ...pending, tier: offeredTier(request.kind, request.tier ?? pending.tier), source: request.source, consent: false }));
       setRestored(true);
     }
   }, [request]);
@@ -203,7 +209,7 @@ function LeadForm({ request, onClose }: { request: LeadRequest; onClose: () => v
           {isInquiry ? "Talk to our team" : `${CHARTER.programName} · Limited to ${CHARTER.seats} founding firms`}
         </p>
         <h2 id={`${uid}-title`} className="mt-1 pr-10 font-display text-[26px] font-semibold leading-tight tracking-tight sm:text-3xl">
-          {isInquiry ? (data.tier === "sponsor" ? "Apply for a Sponsor account" : "Request an Enterprise demo") : "Request a Founding Charter Seat"}
+          {isInquiry ? tier.inquiry?.title : "Request a Founding Charter Seat"}
         </h2>
         <p className="mt-2 text-[14px] text-ink-2">
           {isInquiry
@@ -215,7 +221,7 @@ function LeadForm({ request, onClose }: { request: LeadRequest; onClose: () => v
       <div className="grid gap-5 px-6 py-6 sm:grid-cols-2 sm:px-8">
         <fieldset className="sm:col-span-2">
           <legend className="text-[13px] font-semibold text-ink-2">{isInquiry ? "Account type" : "Tier selected"}</legend>
-          <div className="mt-2 grid gap-2 sm:grid-cols-2" role="radiogroup" aria-invalid={!!show("tier") || undefined}>
+          <div className={clsx("mt-2 grid gap-2", tierOptions.length > 1 && "sm:grid-cols-2")} role="radiogroup" aria-invalid={!!show("tier") || undefined}>
             {tierOptions.map((id) => {
               const t = getTier(id);
               const checked = data.tier === id;
@@ -295,14 +301,14 @@ function LeadForm({ request, onClose }: { request: LeadRequest; onClose: () => v
           <>
             <TextField
               id={`${uid}-seats`}
-              label={data.tier === "sponsor" ? "Referral partners to sponsor" : "Approximate seats"}
+              label={tier.inquiry?.sizeLabel ?? "Approximate seats"}
               optional
               value={data.seats}
               onChange={(v) => set("seats", v)}
               onBlur={blur("seats")}
               error={show("seats")}
               inputMode="numeric"
-              placeholder={data.tier === "sponsor" ? "e.g. 12" : "e.g. 250"}
+              placeholder={tier.inquiry?.sizePlaceholder}
             />
             <div className="flex flex-col gap-1.5 sm:col-span-2">
               <label htmlFor={`${uid}-msg`} className="text-[13px] font-semibold text-ink-2">

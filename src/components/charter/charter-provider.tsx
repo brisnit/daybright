@@ -9,7 +9,7 @@ import { SampleCardExperience } from "./sample-card";
 
 type Ctx = {
   openReservation: (tier: "solo" | "agency" | null, source: string) => void;
-  openInquiry: (tier: "sponsor" | "enterprise", source: string) => void;
+  openInquiry: (tier: TierId, source: string) => void;
   openSample: (source: string) => void;
 };
 

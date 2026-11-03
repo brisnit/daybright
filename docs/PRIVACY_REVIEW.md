@@ -2,7 +2,7 @@
 
 Draft: `/privacy` (`src/app/(site)/privacy/page.tsx`). It's set to `noindex` while `DRAFT = true`, and every open item is highlighted on the page as **[Legal review: …]**. It's linked from the reservation consent text and the footer.
 
-**Scope:** the marketing site, the Founding Charter reservation form and the Sponsor/Enterprise inquiry forms. It doesn't cover the product's customer and client data, which will need its own terms and DPA.
+**Scope:** the marketing site, the Founding Charter reservation form and the Enterprise inquiry form (the Sponsor inquiry form is hidden pending RESPA review). It doesn't cover the product's customer and client data, which will need its own terms and DPA.
 
 ## Status
 The content now reflects what is actually implemented: Vercel hosting, Neon database storage in US East, a keyed IP hash for abuse limits, a browser-side copy of unsent requests, and optional Turnstile and notification email. It stays `DRAFT = true` (noindex, with highlighted flags) until counsel signs off. Then set `DRAFT = false` in `src/app/(site)/privacy/page.tsx`.

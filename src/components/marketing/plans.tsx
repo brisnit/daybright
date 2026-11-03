@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { clsx } from "clsx";
 import { ArrowRight } from "lucide-react";
-import { TIERS } from "@/config/charter";
+import { PUBLIC_TIERS } from "@/config/charter";
 
 const usd = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 
@@ -11,8 +11,8 @@ const usd = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", c
  */
 export function PlanCards({ compact = false }: { compact?: boolean }) {
   return (
-    <ul className={clsx("grid gap-4 sm:grid-cols-2", compact ? "lg:grid-cols-4" : "xl:grid-cols-4")}>
-      {TIERS.map((t) => {
+    <ul className={clsx("grid gap-4 sm:grid-cols-2", PUBLIC_TIERS.length === 3 ? (compact ? "lg:grid-cols-3" : "xl:grid-cols-3") : compact ? "lg:grid-cols-4" : "xl:grid-cols-4")}>
+      {PUBLIC_TIERS.map((t) => {
         return (
           <li key={t.id} className="flex flex-col rounded-3xl bg-white p-6 ring-1 ring-line">
             <h3 className="font-display text-xl font-semibold tracking-tight text-ink">{t.name}</h3>

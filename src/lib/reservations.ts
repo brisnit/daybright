@@ -1,4 +1,4 @@
-import { CRM_OPTIONS, type TierId } from "@/config/charter";
+import { CRM_OPTIONS, INQUIRY_TIER_IDS, RESERVATION_TIER_IDS, type TierId } from "@/config/charter";
 
 /**
  * Founding Charter reservation / sales inquiry contract.
@@ -66,7 +66,8 @@ export function validateLead(d: Partial<LeadSubmission>): FieldErrors {
   const str = (v: unknown) => (typeof v === "string" ? v.trim() : "");
 
   if (d.kind !== "reservation" && d.kind !== "inquiry") e.kind = "Unknown request type.";
-  const tiers: TierId[] = d.kind === "inquiry" ? ["sponsor", "enterprise"] : ["solo", "agency"];
+  // Only publicly offered tiers: a hidden tier (e.g. Sponsor, pending RESPA review) is rejected here and in the API.
+  const tiers: TierId[] = d.kind === "inquiry" ? INQUIRY_TIER_IDS : RESERVATION_TIER_IDS;
   if (!d.tier || !tiers.includes(d.tier)) e.tier = d.kind === "inquiry" ? "Choose an account type." : "Choose a charter tier.";
 
   if (!str(d.fullName)) e.fullName = "Enter your full name.";

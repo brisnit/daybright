@@ -3,7 +3,7 @@ import { consentText, normalizeWebsite, validateLead, type LeadSubmission } from
 import { hashIp, notifyLead, storeLead, type LeadRecord } from "@/lib/lead-store";
 
 /**
- * Founding Charter reservations and Sponsor / Enterprise inquiries.
+ * Founding Charter reservations and inquiries for publicly offered tiers (see PUBLIC_TIERS in src/config/charter.ts).
  * Contract: src/lib/reservations.ts · Storage: src/lib/lead-store.ts · Setup: docs/LEAD_CAPTURE.md
  * Success (201) is returned only after the lead is durably stored. No payment is requested or processed.
  */
