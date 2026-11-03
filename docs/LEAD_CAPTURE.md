@@ -43,7 +43,7 @@ Table `reservations`. Its schema is defined as ordered, idempotent migrations in
 - **Neon console:** Vercel dashboard → Storage → `daybright-leads` → Open in Neon → Tables → `reservations`.
 - **Command line:** `npm run leads:admin -- list` (see above).
 - **CSV:** run `vercel env pull .env.local && npm run leads:export > leads.csv`. Status, note and status time are included. The export guards against spreadsheet formula injection. Don't commit the output.
-- **Instant alerts:** the optional Resend email (`PRODUCTION_SETUP.md` section 2) contains only reference, time, tier, name, firm and email, with no personal data in the subject. Notes and other fields stay in the database.
+- **Instant alerts:** the Resend email (`PRODUCTION_SETUP.md` section 2; active on Preview, sent from `notifications@daybright.store`) contains only reference, time, tier, name, firm and email, with no personal data in the subject. Notes and other fields stay in the database. Each alert logs one line with the lead reference only: accepted, failed or skipped.
 
 ## Responses
 `201` stored · `400/413/415` malformed · `403` cross-site or failed bot check · `422` validation · `429` rate limited · `502` storage failed · `503` no store configured.

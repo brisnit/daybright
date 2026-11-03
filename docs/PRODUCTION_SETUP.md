@@ -1,8 +1,10 @@
 # Production launch runbook
 
-**Status (2026-11-02):** nothing in this document has been applied to Production. `daybright.store` still serves the original `main` site. Production has no database and no lead environment variables. Every step marked **[approval]** needs the owner's explicit go-ahead first.
+**Status (2026-11-03):** nothing in this document has been applied to Production. `daybright.store` still serves the original `main` site. Production has no database and no lead environment variables. Every step marked **[approval]** needs the owner's explicit go-ahead first. The condensed checklist is `docs/LAUNCH_CHECKLIST.md`.
 
-Preview (branch `b2b-charter-redesign`) and Development are configured and tested against the `daybright-leads` database.
+Preview (branch `b2b-charter-redesign`) and Development are configured and tested against the `daybright-leads` database. Resend lead alerts are live on Preview and were verified end to end on 2026-11-03 (section 2).
+
+**Vercel environment variables apply only to deployments built after they're saved.** Adding or changing one doesn't affect existing deployments, including the one you're testing: redeploy afterwards (push a commit, or Vercel → the deployment → ⋯ → **Redeploy**, keeping the environment on Preview). On 2026-11-03 the sender and recipient were added after the latest Preview was built, so that Preview silently skipped alerts until it was rebuilt.
 
 ## 1. Environment variables (Vercel project `daybright`)
 | Variable | Purpose | Dev | Preview | Production (planned) |
@@ -10,7 +12,7 @@ Preview (branch `b2b-charter-redesign`) and Development are configured and teste
 | `DATABASE_URL` (+ `PG*`/`POSTGRES_*`) | Neon connection; required for lead storage | ✅ `daybright-leads` | ✅ `daybright-leads` (shared with Dev) | separate `daybright-leads-prod` (step 4.1) |
 | `LEAD_IP_HASH_SECRET` | Key for hashing IPs used by abuse limits | ✅ | ✅ | fresh value (step 4.2) |
 | `LEAD_TEST_FAULTS` | Enables the storage-failure test header | – | ✅ `1` | **must stay unset** (also ignored when `VERCEL_ENV=production`) |
-| `RESEND_API_KEY`, `LEAD_NOTIFY_FROM`, `LEAD_NOTIFY_TO` | Email alert per new lead (section 2) | – | optional | recommended |
+| `RESEND_API_KEY`, `LEAD_NOTIFY_FROM`, `LEAD_NOTIFY_TO` | Email alert per new lead (section 2). All three or none | – | ✅ (branch-scoped) | recommended, own key |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile bot check (section 3). Set both or neither | – | optional (test keys) | optional |
 | `RESERVATION_WEBHOOK_URL`, `RESERVATION_WEBHOOK_SECRET` | Optional copy of each lead to a CRM/automation | – | – | optional |
 | `LEAD_REVIEW_URL` | Optional link added to alert emails (e.g. the Neon console for the Production project) | – | – | optional |
@@ -18,42 +20,77 @@ Preview (branch `b2b-charter-redesign`) and Development are configured and teste
 
 Values are never committed: `.env*` and `.vercel` are gitignored. Add secrets with `--sensitive`.
 
-## 2. Lead alert emails with Resend (prepared, not active)
+## 2. Lead alert emails with Resend (active on Preview; not on Production)
 **Owner decision 2026-11-02:** send from a verified Daybright domain, so no shared or test sender is used.
 
-**What's built:** after a lead is saved, `notifyLead` sends a short alert:
-- **Subject:** request type and reference only, e.g. "New Founding Charter reservation request · E0CB4799". No personal data, because subjects show in notification previews.
-- **Body:** reference, received time, tier, name, firm and email.
-- **Left out on purpose:** title, website, CRM, team size and the free-text note. The note could contain client information. These stay in the database.
+### Configuration
+| Variable | Value | Notes |
+| --- | --- | --- |
+| `RESEND_API_KEY` | Resend API key (secret) | Add as **Sensitive**. Never commit, paste into chat or log it. Use a separate key per environment |
+| `LEAD_NOTIFY_FROM` | `Daybright Leads <notifications@daybright.store>` | Must be on the verified `daybright.store` domain. `scripts/prod-preflight.mjs` fails otherwise |
+| `LEAD_NOTIFY_TO` | `hellodaybright@gmail.com` | Comma-separate for several recipients |
+| `LEAD_REVIEW_URL` | optional | A link added to each alert, e.g. the Neon console for the Production project |
+
+All three of the first variables must be set, or no email is sent. On Preview they are scoped to the `b2b-charter-redesign` branch. **After adding or changing any of them, redeploy** (see the top of this document).
+
+### Resend account and domain
+- **Account:** Resend, Free plan, in Daybright's name.
+- **Domain:** `daybright.store`, verified in Resend.
+- **API key:** "Sending access" restricted to `daybright.store` (owner to confirm in Resend → API Keys).
+
+**DNS records at Spaceship, as published on 2026-11-03** (checked read-only with `dig`):
+| Type | Host | Value | Purpose |
+| --- | --- | --- | --- |
+| TXT | `resend._domainkey` | `p=MIGfMA0…` (DKIM public key; copy the full value from Resend → Domains if it ever needs re-entering) | Signs Daybright's alert emails |
+| CNAME | `send` | `send.forge.rmta.net` | Resend's managed return path. It provides the `send` subdomain's MX (`feedback.forge.rmta.net`, priority 10) and SPF, so there are no separate MX or TXT records on `send` |
+
+These records don't touch the ImprovMX records on the root domain (MX `mx1`/`mx2.improvmx.com`, TXT `v=spf1 include:spf.improvmx.com ~all`) or the site's A record (`216.150.1.1`). Earlier versions of this guide listed Amazon SES records for `send`; Resend issued the CNAME above instead, so treat Resend's dashboard as the source of truth.
+
+**Not yet set (optional, owner action at Spaceship):** a DMARC record, TXT `_dmarc` with `v=DMARC1; p=none;`. It improves deliverability for both Resend alerts and ImprovMX replies. It's a DNS change, so it needs approval.
+
+### How an alert is sent
+1. The visitor submits the form. The API validates it, applies the spam and rate limits, and **saves the lead to Neon**.
+2. Only after the save commits does the API return 201 with the reference.
+3. If the request wasn't a duplicate (same idempotency key), `after()` runs `notifyLead` once the response has gone. A duplicate returns the original reference and sends nothing.
+4. `notifyLead` sends to Resend only if all three variables are set, with an 8-second timeout. A Resend error or timeout is caught and logged. The lead stays saved and the visitor still sees success.
+
+**What the email contains:**
+- **Subject:** request type and reference only, e.g. "New Founding Charter reservation request · 56305ADD". No personal data, because subjects show in notification previews.
+- **Body:** reference, received time (UTC), tier (reservations), name, firm and email, plus `LEAD_REVIEW_URL` if set.
+- **Left out on purpose:** the free-text note, title, website, CRM and team size. The note could contain client information. These stay in the database.
 - **Reply-to:** the submitter's email, so replying reaches them.
-- **Never blocks a lead:** the alert is sent after the lead is saved, so a Resend failure only shows up in the logs.
 
-**Tested 2026-11-02:**
-- **Payload capture:** the app's call to Resend was intercepted, with nothing sent. The note, title, website, CRM and team size didn't appear.
-- **Invalid key:** the lead was still saved (201).
+### Diagnostic logging
+Each alert writes one log line under `[reservations]`, carrying only the 8-character lead reference. Logs never contain the key, the variable values, names, emails or notes.
+| Log line | Meaning |
+| --- | --- |
+| `lead alert accepted by Resend <ref> <resend id>` | Resend accepted it. Look up the Resend id under Resend → Emails |
+| `notification failed <ref> Error: Resend responded <status> (<error name>)` | Resend rejected it, e.g. 403 for an unverified domain or bad key, 422 for an invalid sender. The lead is still saved |
+| `lead alert skipped: missing <VARIABLE names> <ref>` | Partly configured. Add the missing variable, then **redeploy** |
+| `lead alert skipped: email alerts not configured <ref>` | None of the three variables are set (expected on Production today) |
 
-**Cost:** free tier, ample for this form. Don't choose a paid plan.
+To read them: Vercel → the deployment → **Logs**, filtered to `/api/reservations`. Or `vercel logs --deployment <url> --since 30m --query "lead alert"`.
 
-**Setup:** walk through it with the owner one step at a time (the conversation of 2026-11-02). The outline:
-1. **Create a Resend account** in Daybright's name.
-2. **Add the domain** `daybright.store`, region **North Virginia (us-east-1)**.
-3. **Add the DNS records** Resend shows, in Spaceship → Advanced DNS (owner action). They're normally:
-   | Type | Host | Value | Priority |
-   | --- | --- | --- | --- |
-   | TXT | `resend._domainkey` | DKIM key (unique; copy from Resend) | – |
-   | MX | `send` | `feedback-smtp.us-east-1.amazonses.com` | 10 |
-   | TXT | `send` | `v=spf1 include:amazonses.com ~all` | – |
+### Testing procedure (Preview)
+Test emails go to the real inbox, so get the owner's go-ahead first.
+1. Check the latest Preview deployment was built **after** the variables were last changed (`vercel ls`, `vercel env ls preview b2b-charter-redesign`). If not, redeploy.
+2. Submit one reservation and one inquiry with firm names starting `ZZ` (the preflight script flags leftover `ZZ` rows). Use a `+tag` address on the operator inbox as the email, and a unique marker word in the note.
+3. Expect 201 with a reference for each. In the logs, expect `lead alert accepted by Resend` for both references.
+4. In the inbox, check both emails arrive from `notifications@daybright.store`. The note marker, title, website and CRM must be absent, and reply-to must be the submitted address.
+5. Delete the test rows (owner in the Neon console: `delete from reservations where firm ilike 'zz%';`), and confirm the table holds no test rows.
 
-   They sit on `send.` and the DKIM selector, so they don't touch the ImprovMX MX/SPF on `@` or the site's A record. Copy values from Resend if they differ.
-4. **Wait** until Resend shows the domain as **Verified**.
-5. **Create an API key** with "Sending access", restricted to `daybright.store`.
-6. **At launch only** **[approval]**, set the Production variables:
-   ```bash
-   vercel env add RESEND_API_KEY production --sensitive
-   vercel env add LEAD_NOTIFY_FROM production     # Daybright Leads <leads@daybright.store>
-   vercel env add LEAD_NOTIFY_TO production       # the operator inbox
-   ```
-7. **Optional, later:** a DMARC record (`_dmarc` TXT `v=DMARC1; p=none;`) improves deliverability for both ImprovMX replies and Resend.
+**Verified 2026-11-03** on Preview `daybright-dxk9hgxnp` (commit `fde9776`): both leads saved, Resend accepted both, both arrived at `hellodaybright@gmail.com` without the note (stakeholder confirmed), and the test rows were deleted. Earlier, on 2026-11-02, an intercepted payload test and an invalid-key test (lead still saved, 201) also passed.
+
+### At launch only **[approval]**
+Create a **separate Production API key** in Resend ("Sending access", `daybright.store` only), so Preview and Production keys can be revoked independently. Then:
+```bash
+vercel env add RESEND_API_KEY production --sensitive
+vercel env add LEAD_NOTIFY_FROM production     # Daybright Leads <notifications@daybright.store>
+vercel env add LEAD_NOTIFY_TO production       # hellodaybright@gmail.com
+```
+Add these **before** the Production deployment is built, or redeploy afterwards.
+
+**Cost:** Resend's free tier is ample for this form. Don't choose a paid plan.
 
 ## 3. Cloudflare Turnstile bot check (prepared, kept OFF by owner decision 2026-11-02)
 **What's built:**
@@ -143,7 +180,7 @@ Merge `b2b-charter-redesign` into `main`. Vercel then deploys `main` to `daybrig
 3. **Real reservation from a phone browser:** submit one Founding Charter reservation with your own email and firm "ZZ LAUNCH TEST". Expect "Your request is in" and a reference.
 4. **Inquiry from a desktop browser:** submit one Enterprise inquiry.
 5. **Rows saved:** the operator opens the Production database (`docs/LEAD_OPERATIONS.md`) and sees both rows with status `new`.
-6. **Alerts:** if Resend is on, both alert emails arrive from `leads@daybright.store`. Check that they contain no note, title, website or CRM, and that the reply-to is the submitted address.
+6. **Alerts:** if Resend is on, both alert emails arrive from `notifications@daybright.store`, and the logs show `lead alert accepted by Resend` for both references. Check that they contain no note, title, website or CRM, and that the reply-to is the submitted address.
 7. **Fault header ignored:** a request with `x-lead-test-fault: storage` is **not** failed in Production.
 8. **Clean up:** delete the test rows in the Neon console (`delete from reservations where firm = 'ZZ LAUNCH TEST'`). Then confirm `summary` shows no leads.
 
@@ -169,5 +206,5 @@ The operator guide is `docs/LEAD_OPERATIONS.md`. It works in the browser or a de
 | Vercel | Hosting, environment secrets | in use | existing |
 | Neon (via Vercel Marketplace) | Lead databases: `daybright-leads` (Preview/Dev), `daybright-leads-prod` (Production, at launch); US East | Preview in use | Free |
 | ImprovMX | `hello@daybright.store` inbound forwarding | active since 2026-11-02 | Free |
-| Resend | Lead alert emails from verified `daybright.store` | prepared, not active | Free tier |
+| Resend | Lead alert emails from verified `daybright.store` | active on Preview (verified 2026-11-03); not on Production | Free tier |
 | Cloudflare Turnstile | Bot check | prepared, kept off by decision | Free |
